@@ -1,0 +1,1 @@
+// Resource validator middleware
