@@ -1,1 +1,4 @@
 **/node_modules
+**/src/mock/photos
+**/src/mock/videos
+**/src/mock/songs
