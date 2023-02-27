@@ -1,21 +1,29 @@
 # api definitions for the backend
 
-## base endpoint at http://localhost:port
+_base endpoint at http://localhost:port_
 
-### Explore Tab
+#### Explore Tab
 
-#### URI
+###### URI
 
 /explore
 
-#### METHOD
+###### PARAMS
+
+PostQueryParams
+
+###### METHOD
 
 GET
 
-#### REQUEST BODY
+###### REQUEST BODY
 
 PostPageRequestParams
 
-#### RESPONSE BODY
+###### RESPONSE BODY
 
 PaginatedPostResponseBodyParams
+
+###### INFO
+
+returns popular posts specific to the users choice if postId param is not defined otherwise returns posts similar to the given post

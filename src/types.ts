@@ -267,3 +267,7 @@ export type PaginatedPostResponseBodyParams = ResponseBodyParams<
     };
   } & PageResponseParams<PostResponseParams, PostPageRequestParams>
 >;
+
+export type PostQueryParams = {
+  postId?: string;
+};
