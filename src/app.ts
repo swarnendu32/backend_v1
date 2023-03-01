@@ -2,8 +2,10 @@ require("dotenv").config();
 import express from "express";
 import config from "config";
 import log from "./util/logger";
+import { indexRouter } from "./routes";
 
 const app = express();
+app.use(indexRouter);
 
 const port = config.get("port");
 
