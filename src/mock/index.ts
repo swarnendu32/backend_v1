@@ -20,34 +20,33 @@ import { videos } from "./data/videos";
  * @returns an account response object
  */
 export function generateAccountResponse(
-    hasFullName?: boolean,
-    hasMemories?: boolean,
-    hasFollowing?: boolean,
-    hasFollower?: boolean,
-    hasFollowingInfo?: boolean,
-    hasNoOfFollowers?: boolean,
-    hasNoOfPosts?: boolean,
-    hasTopPosts?: boolean,
-    hasType?: boolean
+    hasFullNameAttribute?: boolean,
+    hasFollowingAttribute?: boolean,
+    hasFollowerAttribute?: boolean,
+    hasFollowingInfoAttribute?: boolean,
+    hasNoOfFollowersAttribute?: boolean,
+    hasNoOfPostsAttribute?: boolean,
+    hasTopPostsAttribute?: boolean,
+    hasTypeAttribute?: boolean
 ): AccountResponseParams {
     const id = "_id" + Date.now();
     const username = userId[randomNumberGenerator(0, userId.length - 1)];
     const profilePictureUri =
         photosData[randomNumberGenerator(0, photosData.length - 1)].url;
-    const fullname = hasFullName
+    const fullname = hasFullNameAttribute
         ? userName[randomNumberGenerator(0, userName.length - 1)]
         : undefined;
-    const isFollowing = hasFollowing
+    const isFollowing = hasFollowingAttribute
         ? randomNumberGenerator(0, 1)
             ? true
             : false
         : undefined;
-    const isFollower = hasFollower
+    const isFollower = hasFollowerAttribute
         ? randomNumberGenerator(0, 1)
             ? true
             : false
         : undefined;
-    const followingInfo = hasFollowingInfo
+    const followingInfo = hasFollowingInfoAttribute
         ? isFollowing !== false
             ? {
                   isFavourite: randomNumberGenerator(0, 1) ? true : false,
@@ -58,21 +57,20 @@ export function generateAccountResponse(
               }
             : undefined
         : undefined;
-    // const suggestionText = randomNumberGenerator(0, 1)
-    //     ? "This account is suggested for some abrupt reasons :("
-    //     : undefined;
-    const noOfFollowers = hasNoOfFollowers
+    const noOfFollowers = hasNoOfFollowersAttribute
         ? randomNumberGenerator(0, 100000)
         : undefined;
-    const noOfPosts = hasNoOfPosts ? randomNumberGenerator(0, 500) : undefined;
-    const topPosts = hasTopPosts
+    const noOfPosts = hasNoOfPostsAttribute
+        ? randomNumberGenerator(0, 500)
+        : undefined;
+    const topPosts = hasTopPostsAttribute
         ? [
               photosData[randomNumberGenerator(0, photosData.length - 1)].url,
               photosData[randomNumberGenerator(0, photosData.length - 1)].url,
               photosData[randomNumberGenerator(0, photosData.length - 1)].url,
           ]
         : undefined;
-    const type: "public" | "private" | undefined = hasType
+    const type: "public" | "private" | undefined = hasTypeAttribute
         ? randomNumberGenerator(0, 1)
             ? "public"
             : "private"
@@ -107,29 +105,27 @@ export function generateAccountResponse(
  */
 export function generateAccountResponses(
     count: number,
-    hasFullName?: boolean,
-    hasMemories?: boolean,
-    hasFollowing?: boolean,
-    hasFollower?: boolean,
-    hasFollowingInfo?: boolean,
-    hasNoOfFollowers?: boolean,
-    hasNoOfPosts?: boolean,
-    hasTopPosts?: boolean,
-    hasType?: boolean
+    hasFullNameAttribute?: boolean,
+    hasFollowingAttribute?: boolean,
+    hasFollowerAttribute?: boolean,
+    hasFollowingInfoAttribute?: boolean,
+    hasNoOfFollowersAttribute?: boolean,
+    hasNoOfPostsAttribute?: boolean,
+    hasTopPostsAttribute?: boolean,
+    hasTypeAttribute?: boolean
 ): AccountResponseParams[] {
     let accountsResponses: AccountResponseParams[] = [];
     for (let i = 0; i < count; i++) {
         accountsResponses.push(
             generateAccountResponse(
-                hasFullName,
-                hasMemories,
-                hasFollowing,
-                hasFollower,
-                hasFollowingInfo,
-                hasNoOfFollowers,
-                hasNoOfPosts,
-                hasTopPosts,
-                hasType
+                hasFullNameAttribute,
+                hasFollowingAttribute,
+                hasFollowerAttribute,
+                hasFollowingInfoAttribute,
+                hasNoOfFollowersAttribute,
+                hasNoOfPostsAttribute,
+                hasTopPostsAttribute,
+                hasTypeAttribute
             )
         );
     }
@@ -173,7 +169,7 @@ export function generatePostResponse(
     hasIsSaved?: boolean
 ): PostResponseParams {
     const id = "_id" + Date.now();
-    const type =
+    const postType =
         mediaType === undefined
             ? randomNumberGenerator(0, 1)
                 ? "Photo"
@@ -183,7 +179,6 @@ export function generatePostResponse(
     const isEdited = randomNumberGenerator(0, 1) ? true : false;
     const author = generateAccountResponse(
         hasFullName,
-        hasMemories,
         hasFollowing,
         hasFollower,
         hasFollowingInfo,
@@ -332,7 +327,7 @@ export function generatePostResponse(
             : undefined;
     return {
         id,
-        type,
+        postType,
         timestamp,
         isEdited,
         author,
@@ -514,7 +509,6 @@ export function generateCommentResponses(
 export function generateAudioResponse(
     hasArtistAccount?: boolean,
     hasMediaUri?: boolean,
-    hasLink?: boolean,
     hasDuration?: boolean,
     hasPreviewSection?: boolean,
     hasPhotosAndMoments?: boolean,
@@ -536,7 +530,6 @@ export function generateAudioResponse(
     const artistAccount = hasArtistAccount
         ? generateAccountResponse(
               hasFullName,
-              hasMemories,
               hasFollowing,
               hasFollower,
               hasFollowingInfo,
@@ -549,7 +542,6 @@ export function generateAudioResponse(
     const posterUri =
         photosData[randomNumberGenerator(0, photosData.length - 1)].url;
     const mediaUri = hasMediaUri ? audio.url : undefined;
-    const link = hasLink ? "" : undefined;
     const duration = hasDuration ? audio.duration * 1000 : undefined;
     let clipDuration = randomNumberGenerator(5000, 59999);
     let previewStart = randomNumberGenerator(
@@ -576,7 +568,6 @@ export function generateAudioResponse(
         artistAccount,
         duration,
         isSaved,
-        link,
         mediaUri,
         noOfPhotosAndMoments,
         previewSection,
@@ -592,7 +583,6 @@ export function generateAudioResponses(
     count: number,
     hasArtistAccount?: boolean,
     hasMediaUri?: boolean,
-    hasLink?: boolean,
     hasDuration?: boolean,
     hasPreviewSection?: boolean,
     hasPhotosAndMoments?: boolean,
@@ -613,7 +603,6 @@ export function generateAudioResponses(
             generateAudioResponse(
                 hasArtistAccount,
                 hasMediaUri,
-                hasLink,
                 hasDuration,
                 hasPreviewSection,
                 hasPhotosAndMoments,
