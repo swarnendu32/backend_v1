@@ -1,7 +1,10 @@
 import HttpStatusCodes from "./constants/HttpStatusCodes";
 
+/**generic type to represent hashtag and location response */
 export type HashTagAndLocationResponseParams = {
+  /**name of the hashtag or location */
   name: string;
+  /**number of posts created using this location or hashtag */
   noOfPosts: number;
 };
 
@@ -15,12 +18,13 @@ export type AccountResponseParams = {
   profilePictureUri: string;
   /**fullname of the account holder */
   fullname?: string;
-  /**true if the requesting account follows the author */
+  /**true if the requesting account follows the target account */
   isFollowing?: boolean;
+  /**true if the  target account follows the requesting account*/
   isFollower?: boolean;
   /**holds additional information about the following user's personalisation */
   followingInfo?: {
-    /**true if the requesting account has added this author to favourite */
+    /**true if the requesting account has added the target account to favourite */
     isFavourite: boolean;
     muteStatus: {
       /**true if memories has been muted */
@@ -39,12 +43,15 @@ export type AccountResponseParams = {
   noOfPosts?: number;
   /**uris of the most recent post thumbnails */
   topPosts?: string[];
-  /**type of account  */
-  type?: "public" | "private";
+  /**true if the account is private */
+  isPrivate?: boolean;
   /**memory details */
   memoryInfo?: {
+    /**toatl number of memories uploaded in last 24 hours */
     noOfAvailableMemories: number;
+    /**true if any of the memories uploaded in last 24 hours is unseen by the requesting account */
     hasUnseenMemories: boolean;
+    /**all the memories uploaded in last 24 hours */
     memories: MemoryResponseParams[];
   };
 };
@@ -124,11 +131,9 @@ export type AudioResponseParams = {
   isSaved?: boolean;
 };
 
-export type MediaType = "Photo" | "Video";
+export type PostType = "photo" | "video" | "moments";
 
-export type PostType = "photo" | "video" | "moments" | "all";
-
-export type AccountSuggestionType = "new" | "popular" | "foryou" | "nearby";
+export type AccountSuggestionType = "new" | "nearby" | "popular" | "foryou";
 
 /**
  * type definition to represent a post
@@ -152,10 +157,10 @@ export type PostResponseParams = {
   isSaved: boolean;
   /**true if the requesting account has liked the post */
   isLiked: boolean;
-  /**true if the author has pinned the post to account grids */
-  isPinned: boolean;
-  /**advanced options related to post metadata */
+  /**advanced options related to post metadata that is only mutable by author */
   advancedOptions: {
+    /**true if the author has pinned the post to account grids */
+    isPinned: boolean;
     /**true if comments is disabled on this post */
     commentsDisabled: boolean;
     /**true if number of likes and views are hidden for this post */
@@ -199,21 +204,14 @@ export type PostResponseParams = {
   } & VideoResponseParams;
   /**photo data of the post, if available */
   photos?: ({
-    /**account mentions sticked to the photo */
-    stickyMentions?: {
-      /**username of the mentioned account */
-      username: string;
-      /**co-ordinates of the mention in percentage relative to the photo */
-      coord: {
-        /**x co-ordinates */
-        x: string;
-        /**y co-ordinates */
-        y: string;
-      };
+    stickyMentionPositions?: {
+      id: string;
+      x: number;
+      y: number;
     }[];
   } & PhotoResponseParams)[];
   /**audio related metadata used in the photo or video */
-  audioRelatedInfo?: {
+  audioInfo?: {
     /**audio section used */
     usedSection: {
       /**statrting timestamp */
@@ -223,71 +221,172 @@ export type PostResponseParams = {
     };
     audio?: AudioResponseParams;
   };
+  /**mentions in the posts */
+  mentions?: AccountResponseParams[];
 };
 
+/**parameters needed to represent a page request*/
 export type PageRequestParams = {
+  /**timestamp upperbound of the page */
   timestamp: number;
+  /**starting index of the page */
   offset: number;
+  /**length of the page */
   length: number;
 };
 
+/**a parameterized version of page request body to add custom parameters to the request*/
 export type PageRequestBodyParams<T = undefined> = Partial<PageRequestParams> &
   T;
 
+/**parameterized page response to represent any king of page data*/
 export type PageResponseParams<T, U = undefined> = {
-  page: T[];
+  /**target list data of specified type*/
+  list: T[];
+  /**metadata associated with the page(i.e request body params, uri params) */
   meta: {
+    /**true if there are more pages available */
     hasMorePages: boolean;
   } & U &
     PageRequestParams;
 };
 
+/**a general type to represent any kind of error */
 export type ErrorResponseParams = {
+  /**http status code associated with the response */
   statusCode: HttpStatusCodes;
+  /**error code associated with the data */
   errorCode: ErrorCodes;
+  /**human readable message to represent the error*/
   messgae: string;
+  /**reason for the error */
   reason: string;
 };
 
+/**a general type to represent any kind of response body */
 export type ResponseBodyParams<T> = {
+  /**desired data if the reuqest is successfull*/
   data?: T;
+  /**error if the request was unsuccessfull*/
   error?: ErrorResponseParams;
 };
 
+/**a type representing a complete paginated post response body*/
 export type PaginatedPostResponseBodyParams<T> = ResponseBodyParams<
   {
+    /**optional suggested post */
     postSuggestion?: PostResponseParams;
+    /**optional suggested audio*/
     audioSuggestion?: {
+      /**audio information */
       audio: AudioResponseParams;
+      /**a video uri created with this audio */
       mediaUri: string;
     };
   } & PageResponseParams<PostResponseParams, T>
 >;
 
+/**a type representing a complete paginated account response body */
 export type PaginatedAccountResponseBodyParams<T> = ResponseBodyParams<
   PageResponseParams<AccountResponseParams, T>
 >;
 
-export type MemoryResponseParams = {};
+/**type representing a memory*/
+export type MemoryResponseParams = {
+  /**unique id of the memory */
+  id: string;
+  /**created timestamp*/
+  timestamp: number;
+  /**orginal video data*/
+  videoInfo: VideoResponseParams;
+  /**audio related metadata used in the video */
+  audioInfo?: {
+    /**audio section used */
+    usedSection: {
+      /**statrting timestamp */
+      from: number;
+      /**stoping timestamp */
+      to: number;
+    };
+    audio?: AudioResponseParams;
+  };
+  /**captions written in the story */
+  captions?: {
+    /**text content of the caption */
+    content: string;
+    /**animation used when the caption is mounted */
+    animation?: {
+      /**name of the animation */
+      name: "fade" | "bounce" | "zoom" | "rotate" | "slide";
+      /**type of the animation */
+      type: string;
+    };
+    /**colors used in foreground and background*/
+    color: {
+      /**type of background used */
+      background:
+        | "semi-transparent-background"
+        | "transparent-background"
+        | "white-background"
+        | "colored-background";
+      /**hexcode color used in foreground or background*/
+      value: string;
+    };
+    /**transform properties used to layout the caption*/
+    transform: {
+      /**rotation in deg*/
+      rotation: number;
+      /**zoom sclae */
+      scale: number;
+      /**absolute position coordinates*/
+      position: {
+        /**x coordinates*/
+        x: number;
+        /**y coordinates*/
+        y: number;
+      };
+    };
+  }[];
+};
 
-export type HomeFeedResponseBody = ResponseBodyParams<{
-  memoryPage: PageResponseParams<MemoryResponseParams>;
+/**type representing the complete home feed response body*/
+export type HomeFeedResponseBodyParams = ResponseBodyParams<{
+  /**first page of accounts/memories*/
+  memoryPage: PageResponseParams<AccountResponseParams>;
+  /**first page of posts from following accounts */
   postPage: PageResponseParams<PostResponseParams>;
+  /**recently cearched items by the requesting account */
   searchHistory: SearchResponseParams[];
+  /**account suggestions to follow*/
+  accountSuggestion: {
+    /**type of suggestion */
+    type: AccountSuggestionType;
+    /**list of accounts */
+    accounts: AccountResponseParams[];
+  };
 }>;
 
+/**a utility type to represent search request body*/
 export type SearchRequestBodyParams = {
+  /**query string to search for*/
   query: string;
 };
 
+/**request body for paginated search query*/
 export type SearchRequestPageBodyParams =
   PageRequestBodyParams<SearchRequestBodyParams>;
 
+/**all the possible search result params*/
 export type SearchResponseParams = Partial<{
+  /**popular keywords to search for */
   keyword: string;
+  /**hashtag search result */
   hashtag: HashTagAndLocationResponseParams;
+  /**location search result */
   location: HashTagAndLocationResponseParams;
+  /**audio search result */
   audio: AudioResponseParams;
+  /**account search result */
   account: AccountResponseParams;
 }>;
 
