@@ -17,6 +17,7 @@ export type AccountResponseParams = {
   fullname?: string;
   /**true if the requesting account follows the author */
   isFollowing?: boolean;
+  isFollower?: boolean;
   /**holds additional information about the following user's personalisation */
   followingInfo?: {
     /**true if the requesting account has added this author to favourite */
