@@ -37,11 +37,6 @@ export function generateAccountResponse(
     const fullname = hasFullName
         ? userName[randomNumberGenerator(0, userName.length - 1)]
         : undefined;
-    const hasNewMemories = hasMemories
-        ? randomNumberGenerator(0, 1)
-            ? true
-            : false
-        : undefined;
     const isFollowing = hasFollowing
         ? randomNumberGenerator(0, 1)
             ? true
@@ -56,7 +51,7 @@ export function generateAccountResponse(
         ? isFollowing !== false
             ? {
                   isFavourite: randomNumberGenerator(0, 1) ? true : false,
-                  isMuted: {
+                  muteStatus: {
                       memory: randomNumberGenerator(0, 1) ? true : false,
                       post: randomNumberGenerator(0, 1) ? true : false,
                   },
@@ -94,7 +89,6 @@ export function generateAccountResponse(
         username,
         profilePictureUri,
         fullname,
-        hasNewMemories,
         isFollowing,
         isFollower,
         followingInfo,
