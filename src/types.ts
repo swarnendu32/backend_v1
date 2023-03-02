@@ -17,6 +17,7 @@ export type AccountResponseParams = {
     fullname?: string;
     /**true if the requesting account follows the author */
     isFollowing?: boolean;
+    isFollower?: boolean;
     /**holds additional information about the following user's personalisation */
     followingInfo?: {
         /**true if the requesting account has added this author to favourite */
@@ -30,8 +31,6 @@ export type AccountResponseParams = {
     };
     /**true if the target account has sent a follow request to this account*/
     hasRequested?: boolean;
-    // /**a text message that states why the account is suggested */
-    // suggestionText?: string;
     /**total number of followers of this account */
     noOfFollowers?: number;
     /**total number of posts uploaded from this account */

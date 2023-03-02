@@ -3,6 +3,7 @@ import {
     AudioResponseParams,
     CommentResponseParams,
     MediaType,
+    MemoryResponseParams,
     PostResponseParams,
     ReplyResponseParams,
 } from "../types";
@@ -27,7 +28,8 @@ export function generateAccountResponse(
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
     hasTopPostsAttribute?: boolean,
-    hasTypeAttribute?: boolean
+    hasTypeAttribute?: boolean,
+    hasMemoryInfoAttribute?: boolean
 ): AccountResponseParams {
     const id = "_id" + Date.now();
     const username = userId[randomNumberGenerator(0, userId.length - 1)];
@@ -81,7 +83,14 @@ export function generateAccountResponse(
                 ? true
                 : false
             : undefined;
-
+    let availableMemories = randomNumberGenerator(1, 50);
+    const memoryInfo = hasMemoryInfoAttribute
+        ? {
+              noOfAvailableMemories: availableMemories,
+              hasUnseenMemories: randomNumberGenerator(0, 1) ? true : false,
+              memories: [] as MemoryResponseParams[],
+          }
+        : undefined;
     return {
         id,
         username,
@@ -95,6 +104,7 @@ export function generateAccountResponse(
         noOfPosts,
         topPosts,
         type,
+        memoryInfo,
     };
 }
 
