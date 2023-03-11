@@ -64,7 +64,9 @@ export type ReplyResponseParams = {
   content: string;
   /**upload timestamp of the reply */
   timestamp: number;
-  /**account, that uploaded the reply */
+  /**account, that uploaded the reply
+   * include following optional params - memoryInfo
+   */
   author: AccountResponseParams;
   /**total number of likes in the reply */
   noOfLikes: number;
@@ -110,7 +112,9 @@ export type AudioResponseParams = {
   title: string;
   /**name of the artist */
   artistName: string;
-  /**account information of the artist if available */
+  /**account information of the artist if available
+   * include only required parameters
+   */
   artistAccount?: AccountResponseParams;
   /**uri of the poster of the audio */
   posterUri: string;
@@ -147,7 +151,9 @@ export type PostResponseParams = {
   timestamp: number;
   /**true if the post is edited  by the author*/
   isEdited: boolean;
-  /**account that uploaded the post */
+  /**account that uploaded the post
+   * include following optional paramaters - memoryInfo, followingInfo, isPrivate, hasRequested, isFollowing
+   */
   author: AccountResponseParams;
   /**name of the location added to the post */
   location?: string;
@@ -176,7 +182,9 @@ export type PostResponseParams = {
     noOfLikes: number;
     /**total no of views in the post, only available to video posts */
     noOfViews: number;
-    /**couple of account informations */
+    /**couple of account informations
+     * only include required params
+     */
     likesFromFollowingAccounts?: AccountResponseParams[];
   };
   /**metadata about the comments on this post */
@@ -188,8 +196,8 @@ export type PostResponseParams = {
   };
   /**video data of the post, if available */
   video?: {
-    momentRelatedInfo?: {
-      /**information about the orginal remixed post */
+    momentParams?: {
+      /**information about the orginal post */
       remixedWith?: {
         /**id of the original post */
         id: string;
@@ -198,8 +206,6 @@ export type PostResponseParams = {
       };
       /**true if this video can be remixed, always false in case its a remixed video */
       remixEnabled: boolean;
-      /**length of each clips added to the video in case its a template*/
-      clipLengths?: number[];
     };
   } & VideoResponseParams;
   /**photo data of the post, if available */
@@ -211,17 +217,20 @@ export type PostResponseParams = {
     }[];
   } & PhotoResponseParams)[];
   /**audio related metadata used in the photo or video */
-  audioInfo?: {
-    /**audio section used */
-    usedSection: {
+  audio?: {
+    isAvailable: boolean;
+    usedSection?: {
       /**statrting timestamp */
       from: number;
       /**stoping timestamp */
       to: number;
     };
-    audio?: AudioResponseParams;
+    clipLengths?: number[];
+    params?: AudioResponseParams;
   };
-  /**mentions in the posts */
+  /**mentions in the posts
+   * include following params - fullname, memoryInfo, isFollowing
+   */
   mentions?: AccountResponseParams[];
 };
 
@@ -236,11 +245,11 @@ export type PageRequestParams = {
 };
 
 /**a parameterized version of page request body to add custom parameters to the request*/
-export type PageRequestBodyParams<T = undefined> = Partial<PageRequestParams> &
-  T;
+export type PageRequestBodyParams<T extends {} = {}> =
+  Partial<PageRequestParams> & T;
 
 /**parameterized page response to represent any king of page data*/
-export type PageResponseParams<T, U = undefined> = {
+export type PageResponseParams<T extends {}, U extends {} = {}> = {
   /**target list data of specified type*/
   list: T[];
   /**metadata associated with the page(i.e request body params, uri params) */
@@ -272,24 +281,27 @@ export type ResponseBodyParams<T> = {
 };
 
 /**a type representing a complete paginated post response body*/
-export type PaginatedPostResponseBodyParams<T> = ResponseBodyParams<
-  {
-    /**optional suggested post */
-    postSuggestion?: PostResponseParams;
-    /**optional suggested audio*/
-    audioSuggestion?: {
-      /**audio information */
-      audio: AudioResponseParams;
-      /**a video uri created with this audio */
-      mediaUri: string;
-    };
-  } & PageResponseParams<PostResponseParams, T>
->;
+export type PaginatedPostResponseBodyParams<T extends {} = {}> =
+  ResponseBodyParams<
+    {
+      /**optional suggested account */
+      accountSuggestions?: {
+        type: AccountSuggestionType;
+        suggestions: AccountResponseParams[];
+      };
+      /**optional suggested audio*/
+      audioSuggestion?: {
+        /**audio information */
+        audio: AudioResponseParams;
+        /**a video uri created with this audio */
+        mediaUri: string;
+      };
+    } & PageResponseParams<PostResponseParams, T>
+  >;
 
 /**a type representing a complete paginated account response body */
-export type PaginatedAccountResponseBodyParams<T> = ResponseBodyParams<
-  PageResponseParams<AccountResponseParams, T>
->;
+export type PaginatedAccountResponseBodyParams<T extends {} = {}> =
+  ResponseBodyParams<PageResponseParams<AccountResponseParams, T>>;
 
 /**type representing a memory*/
 export type MemoryResponseParams = {
@@ -298,17 +310,18 @@ export type MemoryResponseParams = {
   /**created timestamp*/
   timestamp: number;
   /**orginal video data*/
-  videoInfo: VideoResponseParams;
+  video: VideoResponseParams;
   /**audio related metadata used in the video */
-  audioInfo?: {
-    /**audio section used */
-    usedSection: {
+  audio?: {
+    isAvailable: boolean;
+    usedSection?: {
       /**statrting timestamp */
       from: number;
       /**stoping timestamp */
       to: number;
     };
-    audio?: AudioResponseParams;
+    clipLengths?: number[];
+    params?: AudioResponseParams;
   };
   /**captions written in the story */
   captions?: {
@@ -351,19 +364,14 @@ export type MemoryResponseParams = {
 
 /**type representing the complete home feed response body*/
 export type HomeFeedResponseBodyParams = ResponseBodyParams<{
-  /**first page of accounts/memories*/
+  /**first page of accounts/memories
+   * include following optional params - memoryInfo, followingInfo
+   */
   memoryPage: PageResponseParams<AccountResponseParams>;
   /**first page of posts from following accounts */
   postPage: PageResponseParams<PostResponseParams>;
   /**recently cearched items by the requesting account */
   searchHistory: SearchResponseParams[];
-  /**account suggestions to follow*/
-  accountSuggestion: {
-    /**type of suggestion */
-    type: AccountSuggestionType;
-    /**list of accounts */
-    accounts: AccountResponseParams[];
-  };
 }>;
 
 /**a utility type to represent search request body*/
@@ -386,13 +394,15 @@ export type SearchResponseParams = Partial<{
   location: HashTagAndLocationResponseParams;
   /**audio search result */
   audio: AudioResponseParams;
-  /**account search result */
+  /**account search result
+   * include only required parameters
+   */
   account: AccountResponseParams;
 }>;
 
 export type SearchResponseBodyParams = ResponseBodyParams<
   {
-    searchResults: SearchResponseParams[];
+    results: SearchResponseParams[];
   } & SearchRequestBodyParams
 >;
 
