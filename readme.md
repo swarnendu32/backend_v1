@@ -14,7 +14,7 @@ PageRequestBodyParams
 
 ###### RESPONSE BODY
 
-AccountResponseBodyParams
+PaginatedAccountResponseBodyParams
 
 ###### description
 
@@ -36,7 +36,7 @@ PageRequestBodyParams
 
 ###### RESPONSE BODY
 
-AccountResponseBodyParams
+PaginatedAccountResponseBodyParams
 
 ###### description
 
@@ -58,7 +58,7 @@ PageRequestBodyParams
 
 ###### RESPONSE BODY
 
-AccountResponseBodyParams
+PaginatedAccountResponseBodyParams
 
 ###### description
 
@@ -80,7 +80,7 @@ PageRequestBodyParams
 
 ###### RESPONSE BODY
 
-AccountResponseBodyParams
+PaginatedAccountResponseBodyParams
 
 ###### description
 
