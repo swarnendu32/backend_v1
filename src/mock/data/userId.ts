@@ -1,4 +1,4 @@
-export const userId = [
+export const userIdData = [
     "royalchallenger_bangalore",
     "mumbai.indians",
     "chennai.super.kings",

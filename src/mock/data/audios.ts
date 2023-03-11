@@ -1,4 +1,4 @@
-export const audios = [
+export const audiosData = [
     {
         title: "Aanewala Pal Janewala Hai",
         url: "/src/mock/songs/Aanewala Pal Janewala Hai.mp3",

@@ -1,4 +1,4 @@
-export const captions = [
+export const captionsData = [
     "If you want the opportunity to knock, it's time to build a door",
 
     "The little things in life matter",

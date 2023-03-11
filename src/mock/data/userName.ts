@@ -1,4 +1,4 @@
-export const userName = [
+export const userNameData = [
     "Royal Challenger Bangalore",
     "Mumbai Indians",
     "Chennai Super Kings",

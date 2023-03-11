@@ -1,4 +1,4 @@
-export const videos = [
+export const videosData = [
     {
         url: "/src/mock/videos/mixkit-beautiful-sunrise-landscape-1944-large.mp4",
         width: 1280,
