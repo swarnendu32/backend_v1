@@ -371,3 +371,69 @@ PaginatedPostResponseBodyParams
 ###### description
 
 returns popular moments based on a target post
+
+##### following
+
+###### URL
+
+/following
+
+###### PARAMS
+
+none
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+HomeFeedResponseBodyParams
+
+###### description
+
+returns first batch of memory and posts from following accounts, recent searches and some account suggestions
+
+##### following posts
+
+###### URL
+
+/following/posts
+
+###### PARAMS
+
+none
+
+###### REQUEST BODY
+
+PageRequestBodyParams
+
+###### RESPONSE BODY
+
+PaginatedPostResponseBodyParams
+
+###### description
+
+returns posts from following accounts
+
+##### following memories
+
+###### URL
+
+/following/memories
+
+###### PARAMS
+
+none
+
+###### REQUEST BODY
+
+PageRequestBodyParams
+
+###### RESPONSE BODY
+
+PaginatedAccountResponseBodyParams
+
+###### description
+
+returns memory informations of following accounts(if total number of memories does not exceeds threshold it will be attached to the accounts)
