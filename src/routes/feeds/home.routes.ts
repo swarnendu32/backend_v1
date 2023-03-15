@@ -1,14 +1,14 @@
 import { Router } from "express";
 import {
     homeFeedDataHandler,
-    homeMemoriesFeedDataHandler,
-    homePostsFeedDataHandler,
+    homeFeedMemoriesDataHandler,
+    homeFeedPostsDataHandler,
 } from "../../controller/feeds/home.controller";
 
 export const homeRouter = Router();
 
 homeRouter.get("/", homeFeedDataHandler);
 
-homeRouter.get("/posts", homePostsFeedDataHandler);
+homeRouter.get("/posts", homeFeedPostsDataHandler);
 
-homeRouter.get("/memories", homeMemoriesFeedDataHandler);
+homeRouter.get("/memories", homeFeedMemoriesDataHandler);

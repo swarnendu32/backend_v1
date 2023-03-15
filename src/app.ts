@@ -5,6 +5,7 @@ import log from "./util/logger";
 import { indexRouter } from "./routes";
 
 const app = express();
+app.use(express.json());
 app.use(indexRouter);
 
 const port = config.get("port");

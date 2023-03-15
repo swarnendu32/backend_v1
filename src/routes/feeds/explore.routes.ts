@@ -6,7 +6,7 @@ import {
     exploreVideosFeedDataHandler,
 } from "../../controller/feeds/explore.controller";
 
-const exploreRouter = Router();
+export const exploreRouter = Router();
 
 exploreRouter.get("/", exploreFeedDataHandler);
 

@@ -16,7 +16,7 @@ searchRouter.get("/posts", searchPostsEntityHandler);
 
 searchRouter.get("/accounts", searchAccountsEntityHandler);
 
-searchRouter.get("/audio", searchAudiosEntityHandler);
+searchRouter.get("/audios", searchAudiosEntityHandler);
 
 searchRouter.get("/hashtags", searchHashtagsEntityHandler);
 

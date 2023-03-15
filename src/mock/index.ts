@@ -2,10 +2,12 @@ import {
     AccountResponseParams,
     AudioResponseParams,
     CommentResponseParams,
+    HashTagAndLocationResponseParams,
     MemoryResponseParams,
     PostResponseParams,
     PostType,
     ReplyResponseParams,
+    SearchResponseParams,
     VideoResponseParams,
 } from "../types";
 import { userNameData } from "./data/userName";
@@ -27,27 +29,31 @@ function generateMemoryResponse(): MemoryResponseParams {
     const timestamp: number = Date.now();
     let videoItem = videosData[randomNumberGenerator(0, videosData.length - 1)];
     let photoItem = photosData[randomNumberGenerator(0, photosData.length - 1)];
-    const videoInfo: VideoResponseParams = {
+    const video = {
         duration: videoItem.duration * 1000,
         isMuted: randomNumberGenerator(0, 1) ? true : false,
         uri: videoItem.url,
         previewUri: photoItem.url,
         aspectRatio: videoItem.width / videoItem.height,
     };
-    let audio = generateAudioResponse();
-    const audioInfo = randomNumberGenerator(0, 1)
+    let audioInfo = generateAudioResponse(undefined, true);
+    let hasAudio = randomNumberGenerator(0, 1) ? true : false;
+    const audio = randomNumberGenerator(0, 1)
         ? {
-              usedSection: {
-                  from:
-                      audio.previewSection !== undefined
-                          ? audio.previewSection.from
-                          : 0,
-                  to:
-                      audio.previewSection !== undefined
-                          ? audio.previewSection.to
-                          : 0,
-              },
-              audio: randomNumberGenerator(0, 1) ? audio : undefined,
+              isAvailable: hasAudio,
+              usedSection: hasAudio
+                  ? {
+                        from:
+                            audioInfo.previewSection !== undefined
+                                ? audioInfo.previewSection.from
+                                : 0,
+                        to:
+                            audioInfo.previewSection !== undefined
+                                ? audioInfo.previewSection.to
+                                : 0,
+                    }
+                  : undefined,
+              params: hasAudio ? audioInfo : undefined,
           }
         : undefined;
     let captionList = [];
@@ -57,7 +63,7 @@ function generateMemoryResponse(): MemoryResponseParams {
         | "transparent-background"
         | "white-background"
         | "colored-background" = "semi-transparent-background";
-    for (let i = 0; i < randomNumberGenerator(0, 5); i++) {
+    for (let i = 0; i < randomNumberGenerator(1, 5); i++) {
         let caption = {
             content:
                 captionsData[randomNumberGenerator(0, captionsData.length - 1)],
@@ -87,8 +93,8 @@ function generateMemoryResponse(): MemoryResponseParams {
     return {
         id,
         timestamp,
-        videoInfo,
-        audioInfo,
+        video,
+        audio,
         captions,
     };
 }
@@ -132,7 +138,7 @@ export function generateAccountResponse(
             : false
         : undefined;
     const followingInfo = hasFollowingInfoAttribute
-        ? isFollowing
+        ? !isFollowing
             ? {
                   isFavourite: randomNumberGenerator(0, 1) ? true : false,
                   muteStatus: {
@@ -165,14 +171,15 @@ export function generateAccountResponse(
             ? true
             : false
         : undefined;
-    let availableMemories = randomNumberGenerator(1, 30);
-    const memoryInfo = hasMemoryInfoAttribute
-        ? {
-              noOfAvailableMemories: availableMemories,
-              hasUnseenMemories: randomNumberGenerator(0, 1) ? true : false,
-              memories: generateMemoryResponses(availableMemories),
-          }
-        : undefined;
+    let availableMemories = randomNumberGenerator(1, 3);
+    const memoryInfo =
+        hasMemoryInfoAttribute && !isPrivate
+            ? {
+                  noOfAvailableMemories: availableMemories,
+                  hasUnseenMemories: randomNumberGenerator(0, 1) ? true : false,
+                  memories: generateMemoryResponses(availableMemories),
+              }
+            : undefined;
     return {
         id,
         username,
@@ -253,13 +260,9 @@ export function generatePostResponse(
     hasTemplateAttribute?: boolean,
     hasStickyMentionsAttribute?: boolean,
     hasAudioRelatedInfoAttribute?: boolean,
-    hasAudioAttribute?: boolean,
-    hasArtistAccountAttribute?: boolean,
     hasMediaUriAttribute?: boolean,
     hasDurationAttribute?: boolean,
-    hasPreviewSectionAttribute?: boolean,
-    hasPhotosAndMomentsAttribute?: boolean,
-    hasIsSavedAttribute?: boolean
+    hasPreviewSectionAttribute?: boolean
 ): PostResponseParams {
     const id = "_id" + Date.now();
     const postType =
@@ -305,18 +308,7 @@ export function generatePostResponse(
               likesfromFollowingAccounts: hasLikesFromFollowingAccountsAttribute
                   ? {
                         noOfLikes: randomNumberGenerator(0, 100),
-                        topAccounts: generateAccountResponses(
-                            3,
-                            hasFullNameAttribute,
-                            hasFollowingAttribute,
-                            hasFollowerAttribute,
-                            hasFollowingInfoAttribute,
-                            hasNoOfFollowersAttribute,
-                            hasNoOfPostsAttribute,
-                            hasTopPostsAttribute,
-                            hasIsPrivateAttribute,
-                            hasMemoryInfoAttribute
-                        ),
+                        topAccounts: generateAccountResponses(3),
                     }
                   : undefined,
           }
@@ -374,7 +366,7 @@ export function generatePostResponse(
     if (hasStickyMentionsAttribute) {
         for (let i = 0; i < randomNumberGenerator(1, 15); i++) {
             let stickyMention = {
-                id: userIdData[randomNumberGenerator(0, userIdData.length) - 1],
+                id: userIdData[randomNumberGenerator(0, userIdData.length - 1)],
                 x: 0,
                 y: 0,
             };
@@ -394,57 +386,39 @@ export function generatePostResponse(
         photoList.push(photoItem);
     }
     const photos = postType === "photo" ? photoList : undefined;
-    let audio = generateAudioResponse(
-        hasArtistAccountAttribute,
+    let audioInfo = generateAudioResponse(
+        undefined,
         hasMediaUriAttribute,
         hasDurationAttribute,
-        hasPreviewSectionAttribute,
-        hasPhotosAndMomentsAttribute,
-        hasIsSavedAttribute,
-        hasFullNameAttribute,
-        hasFollowingAttribute,
-        hasFollowerAttribute,
-        hasFollowingInfoAttribute,
-        hasNoOfFollowersAttribute,
-        hasNoOfPostsAttribute,
-        hasTopPostsAttribute,
-        hasIsPrivateAttribute,
-        hasMemoryInfoAttribute
+        hasPreviewSectionAttribute
     );
-    const audioInfo =
+    let audioAvailable = randomNumberGenerator(0, 1) ? true : false;
+    const audio =
         postType === "video"
             ? undefined
             : hasAudioRelatedInfoAttribute
             ? {
-                  usedSection: {
-                      from:
-                          audio.previewSection !== undefined
-                              ? audio.previewSection.from
-                              : 0,
-                      to:
-                          audio.previewSection !== undefined
-                              ? postType === "moments"
-                                  ? audio.previewSection.from +
-                                    videoItem.duration
-                                  : audio.previewSection.to
-                              : 0,
-                  },
-                  audio: hasAudioAttribute ? audio : undefined,
+                  isAvailable: audioAvailable,
+                  usedSection: audioAvailable
+                      ? {
+                            from:
+                                audioInfo.previewSection !== undefined
+                                    ? audioInfo.previewSection.from
+                                    : 0,
+                            to:
+                                audioInfo.previewSection !== undefined
+                                    ? postType === "moments"
+                                        ? audioInfo.previewSection.from +
+                                          videoItem.duration
+                                        : audioInfo.previewSection.to
+                                    : 0,
+                        }
+                      : undefined,
+                  params: audioAvailable ? audioInfo : undefined,
               }
             : undefined;
     let mentionCount = randomNumberGenerator(0, 10);
-    const mentions = generateAccountResponses(
-        mentionCount,
-        hasFullNameAttribute,
-        hasFollowingAttribute,
-        hasFollowerAttribute,
-        hasFollowingInfoAttribute,
-        hasNoOfFollowersAttribute,
-        hasNoOfPostsAttribute,
-        hasTopPostsAttribute,
-        hasIsPrivateAttribute,
-        hasMemoryInfoAttribute
-    );
+    const mentions = generateAccountResponses(mentionCount);
     return {
         id,
         postType,
@@ -460,7 +434,7 @@ export function generatePostResponse(
         comments,
         video,
         photos,
-        audioInfo,
+        audio,
         mentions,
     };
 }
@@ -493,13 +467,9 @@ export function generatePostResponses(
     hasTemplateAttribute?: boolean,
     hasStickyMentionsAttribute?: boolean,
     hasAudioRelatedInfoAttribute?: boolean,
-    hasAudioAttribute?: boolean,
-    hasArtistAccountAttribute?: boolean,
     hasMediaUriAttribute?: boolean,
     hasDurationAttribute?: boolean,
-    hasPreviewSectionAttribute?: boolean,
-    hasPhotosAndMomentsAttribute?: boolean,
-    hasIsSavedAttribute?: boolean
+    hasPreviewSectionAttribute?: boolean
 ): PostResponseParams[] {
     let postResponses: PostResponseParams[] = [];
     for (let i = 0; i < count; i++) {
@@ -525,13 +495,9 @@ export function generatePostResponses(
                 hasTemplateAttribute,
                 hasStickyMentionsAttribute,
                 hasAudioRelatedInfoAttribute,
-                hasAudioAttribute,
-                hasArtistAccountAttribute,
                 hasMediaUriAttribute,
                 hasDurationAttribute,
-                hasPreviewSectionAttribute,
-                hasPhotosAndMomentsAttribute,
-                hasIsSavedAttribute
+                hasPreviewSectionAttribute
             )
         );
     }
@@ -824,4 +790,79 @@ export function generateAudioResponses(
         );
     }
     return audioResponses;
+}
+export function generateSearchResponse(
+    hasKeywordAttribute?: boolean,
+    hasHashtagAttribute?: boolean,
+    hasLocationAttribute?: boolean,
+    hasAudioAttribute?: boolean,
+    hasAccountAttribute?: boolean
+): SearchResponseParams {
+    const keyword: string | undefined = hasKeywordAttribute
+        ? userIdData[randomNumberGenerator(0, userIdData.length - 1)]
+        : undefined;
+    const hashtag: HashTagAndLocationResponseParams | undefined =
+        hasHashtagAttribute
+            ? {
+                  name: locationsData[
+                      randomNumberGenerator(0, locationsData.length - 1)
+                  ],
+                  noOfPosts: randomNumberGenerator(0, 10000),
+              }
+            : undefined;
+    const location: HashTagAndLocationResponseParams | undefined =
+        hasLocationAttribute
+            ? {
+                  name: locationsData[
+                      randomNumberGenerator(0, locationsData.length - 1)
+                  ],
+                  noOfPosts: randomNumberGenerator(0, 1000),
+              }
+            : undefined;
+    const audio: AudioResponseParams | undefined = hasAudioAttribute
+        ? generateAudioResponse()
+        : undefined;
+    const account = hasAccountAttribute
+        ? generateAccountResponse(
+              true,
+              true,
+              true,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              true,
+              true
+          )
+        : undefined;
+
+    return {
+        account,
+        audio,
+        hashtag,
+        keyword,
+        location,
+    };
+}
+
+export function generateSearchResponses(
+    count: number,
+    hasKeywordAttribute?: boolean,
+    hasHashtagAttribute?: boolean,
+    hasLocationAttribute?: boolean,
+    hasAudioAttribute?: boolean,
+    hasAccountAttribute?: boolean
+): SearchResponseParams[] {
+    let searchData: SearchResponseParams[] = [];
+    for (let i = 0; i < count; i++) {
+        const data = generateSearchResponse(
+            hasKeywordAttribute,
+            hasHashtagAttribute,
+            hasLocationAttribute,
+            hasAudioAttribute,
+            hasAccountAttribute
+        );
+        searchData.push(data);
+    }
+    return searchData;
 }
