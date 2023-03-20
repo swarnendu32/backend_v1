@@ -4,82 +4,58 @@ import {
     generatePostResponses,
 } from "../../mock";
 import { videosData } from "../../mock/data/videos";
-import { PaginatedPostResponseBodyParams } from "../../types";
+import { FeedResponseParams } from "../../types";
 import randomNumberGenerator from "../../util/randomNumber";
 
 export function foryouPhotosFeedService(
     length: number,
     offset: number,
     timestamp: number
-): PaginatedPostResponseBodyParams {
-    const data = generatePostResponses(
-        length,
-        "photo",
-        true,
-        undefined,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        undefined
-    );
+): FeedResponseParams | undefined {
+    try {
+        const data = generatePostResponses(
+            length,
+            "photo",
+            true,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            undefined
+        );
 
-    const accountData = generateAccountResponses(
-        3,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-
-    const audioData = generateAudioResponse(
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined
-    );
-    return {
-        data: {
+        const accountData = generateAccountResponses(
+            3,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             accountSuggestions: {
                 type: "foryou",
                 suggestions: accountData,
-            },
-            audioSuggestion: {
-                audio: audioData,
-                mediaUri:
-                    videosData[randomNumberGenerator(0, videosData.length - 1)]
-                        .url,
             },
             list: data,
             meta: {
@@ -88,58 +64,58 @@ export function foryouPhotosFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function foryouVideosFeedService(
     length: number,
     offset: number,
     timestamp: number
-): PaginatedPostResponseBodyParams {
-    const postData = generatePostResponses(
-        length,
-        "video",
-        true,
-        undefined,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined
-    );
+): FeedResponseParams | undefined {
+    try {
+        const postData = generatePostResponses(
+            length,
+            "video",
+            true,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined
+        );
 
-    const accountData = generateAccountResponses(
-        3,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-
-    return {
-        data: {
+        const accountData = generateAccountResponses(
+            3,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             accountSuggestions: {
                 type: "foryou",
                 suggestions: accountData,
@@ -151,80 +127,63 @@ export function foryouVideosFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function foryouMomentsFeedService(
     length: number,
     offset: number,
     timestamp: number
-): PaginatedPostResponseBodyParams {
-    const data = generatePostResponses(
-        length,
-        "moments",
-        true,
-        undefined,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        true,
-        true,
-        undefined,
-        true,
-        true,
-        true,
-        true
-    );
+): FeedResponseParams | undefined {
+    try {
+        const data = generatePostResponses(
+            length,
+            "moments",
+            true,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            undefined,
+            true,
+            true,
+            undefined,
+            true,
+            true,
+            true,
+            true
+        );
+        const audioData = generateAudioResponse(
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined
+        );
 
-    const accountData = generateAccountResponses(
-        3,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-
-    const audioData = generateAudioResponse(
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined
-    );
-
-    return {
-        data: {
-            accountSuggestions: {
-                type: "foryou",
-                suggestions: accountData,
-            },
+        return {
             audioSuggestion: {
                 audio: audioData,
                 mediaUri:
@@ -238,7 +197,8 @@ export function foryouMomentsFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }

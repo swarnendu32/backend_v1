@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import {
     discoverForYouFeedDataHandler,
     discoverNearByFeedDataHandler,
@@ -15,3 +15,7 @@ discoverRouter.get("/popular", discoverPopularFeedDataHandler);
 discoverRouter.get("/new", discoverNewFeedDataHandler);
 
 discoverRouter.get("/nearby", discoverNearByFeedDataHandler);
+
+discoverRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
+    next({ message: "INVALID_ROUTE" });
+});

@@ -1,3 +1,9 @@
 enum ErrorCodes {
-  INVALID_PASSWORD = 100,
+    INVALID_PASSWORD = 100,
+    INVALID_CONTENT_TYPE = 4015,
+    INVALID_REQUEST_PAYLOAD = 4000,
+    INVALID_ROUTE = 4014,
+    SERVER_ERROR = 5000,
 }
+
+export default ErrorCodes;

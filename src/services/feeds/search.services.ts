@@ -1,25 +1,35 @@
-import { generatePostResponses, generateSearchResponses } from "../../mock";
 import {
+    generateAccountResponses,
+    generatePostResponses,
+    generateSearchResponses,
+} from "../../mock";
+import {
+    FeedResponseParams,
     PaginatedPostSearchResponseBodyParams,
+    SearchRequestBodyParams,
     SearchResponseBodyParams,
+    SearchResultParams,
 } from "../../types";
 
-export function searchEntityService(query: string): SearchResponseBodyParams {
-    const searchResults = generateSearchResponses(
-        10,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+export function searchEntityService(
+    query: string
+): SearchResultParams | undefined {
+    try {
+        const searchResults = generateSearchResponses(
+            30,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             query: query,
             results: searchResults,
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function searchPostsEntityService(
@@ -27,35 +37,51 @@ export function searchPostsEntityService(
     offset: number,
     timestamp: number,
     query: string
-): PaginatedPostSearchResponseBodyParams {
-    const postData = generatePostResponses(
-        length,
-        undefined,
-        true,
-        true,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+): FeedResponseParams<SearchRequestBodyParams> | undefined {
+    try {
+        const postData = generatePostResponses(
+            length,
+            undefined,
+            true,
+            true,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        const accountData = generateAccountResponses(
+            3,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
+            accountSuggestions: {
+                suggestions: accountData,
+                type: "foryou",
+            },
             list: postData,
             meta: {
                 hasMorePages: true,
@@ -64,36 +90,38 @@ export function searchPostsEntityService(
                 timestamp: timestamp,
                 query: query,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function searchAccountsEntityService(
     query: string
-): SearchResponseBodyParams {
-    const searchResults = generateSearchResponses(
-        10,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true
-    );
-    return {
-        data: {
+): SearchResultParams | undefined {
+    try {
+        const searchResults = generateSearchResponses(
+            30,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            true
+        );
+        return {
             query: query,
             results: searchResults,
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function searchAudiosEntityService(
     query: string
 ): SearchResponseBodyParams {
     const searchResults = generateSearchResponses(
-        10,
+        30,
         undefined,
         undefined,
         undefined,
@@ -111,40 +139,42 @@ export function searchAudiosEntityService(
 
 export function searchHashtagEntityService(
     query: string
-): SearchResponseBodyParams {
-    const searchResults = generateSearchResponses(
-        10,
-        undefined,
-        true,
-        undefined,
-        undefined,
-        undefined
-    );
-    return {
-        data: {
+): SearchResultParams | undefined {
+    try {
+        const searchResults = generateSearchResponses(
+            30,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined
+        );
+        return {
             query: query,
             results: searchResults,
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function searchLocationEntityService(
     query: string
-): SearchResponseBodyParams {
-    const searchResults = generateSearchResponses(
-        10,
-        undefined,
-        undefined,
-        true,
-        undefined,
-        undefined
-    );
-    return {
-        data: {
+): SearchResultParams | undefined {
+    try {
+        const searchResults = generateSearchResponses(
+            10,
+            undefined,
+            undefined,
+            true,
+            undefined,
+            undefined
+        );
+        return {
             query: query,
             results: searchResults,
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }

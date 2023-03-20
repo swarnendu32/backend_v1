@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import {
     searchAccountsEntityHandler,
     searchAudiosEntityHandler,
@@ -21,3 +21,7 @@ searchRouter.get("/audios", searchAudiosEntityHandler);
 searchRouter.get("/hashtags", searchHashtagsEntityHandler);
 
 searchRouter.get("/locations", searchLocationsEntityHandler);
+
+searchRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
+    next({ message: "INVALID_ROUTE" });
+});

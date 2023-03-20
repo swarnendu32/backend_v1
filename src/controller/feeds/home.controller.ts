@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import ErrorCodes from "../../constants/ErrorCodes";
 import HttpStatusCodes from "../../constants/HttpStatusCodes";
 import {
     homeFeedMemoriesService,
@@ -6,55 +7,117 @@ import {
     homeFeedService,
 } from "../../services/feeds/home.services";
 import { PageRequestBodyParams } from "../../types";
+import AppError from "../../util/appError";
 
-export const homeFeedDataHandler = (req: Request, res: Response) => {
+export const homeFeedDataHandler = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
-        const { data, error } = homeFeedService();
-        if (error === undefined) {
-            return res.status(HttpStatusCodes.OK).json(data);
+        if (req.headers["content-type"] !== "application/json") {
+            throw new AppError(
+                ErrorCodes.INVALID_CONTENT_TYPE,
+                "Unsupported Media Type",
+                "Invalid Content-Type or Content-Encoding",
+                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
+            );
         }
-        throw error;
-    } catch (error) {
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(error);
+        if (Object.keys(req.body).length) {
+            throw new AppError(
+                ErrorCodes.INVALID_REQUEST_PAYLOAD,
+                "Bad Request",
+                "Invalid request payload",
+                HttpStatusCodes.BAD_REQUEST
+            );
+        }
+        const result = homeFeedService();
+        return res.status(HttpStatusCodes.OK).json(result);
+    } catch (e: unknown) {
+        return next(e);
     }
 };
 
 export const homeFeedPostsDataHandler = (
     req: Request<{}, {}, PageRequestBodyParams>,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
-    const length = req.body.length;
-    const offset = req.body.offset;
-    const timestamp = req.body.timestamp;
     try {
-        const { data, error } = homeFeedPostsService(length, offset, timestamp);
-        if (error === undefined) {
-            return res.status(HttpStatusCodes.OK).json(data);
+        if (req.headers["content-type"] !== "application/json") {
+            throw new AppError(
+                ErrorCodes.INVALID_CONTENT_TYPE,
+                "Unsupported Media Type",
+                "Invalid Content-Type or Content-Encoding",
+                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
+            );
         }
-        throw error;
-    } catch (error) {
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(error);
+        if (
+            Object.keys(req.body).length ||
+            Object.keys(req.body).length === 0
+        ) {
+            if (
+                typeof req.body.length !== "number" ||
+                typeof req.body.offset !== "number" ||
+                typeof req.body.timestamp !== "number" ||
+                Object.keys(req.body).length > 3
+            ) {
+                throw new AppError(
+                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
+                    "Bad Request",
+                    "Invalid request payload",
+                    HttpStatusCodes.BAD_REQUEST
+                );
+            }
+        }
+        const length = req.body.length;
+        const offset = req.body.offset;
+        const timestamp = req.body.timestamp;
+        const result = homeFeedPostsService(length, offset, timestamp);
+        return res.status(HttpStatusCodes.OK).json(result);
+    } catch (e: unknown) {
+        return next(e);
     }
 };
 
 export const homeFeedMemoriesDataHandler = (
     req: Request<{}, {}, PageRequestBodyParams>,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) => {
-    const length = req.body.length;
-    const offset = req.body.offset;
-    const timestamp = req.body.timestamp;
     try {
-        const { data, error } = homeFeedMemoriesService(
-            length,
-            offset,
-            timestamp
-        );
-        if (error === undefined) {
-            return res.status(HttpStatusCodes.OK).json(data);
+        if (req.headers["content-type"] !== "application/json") {
+            throw new AppError(
+                ErrorCodes.INVALID_CONTENT_TYPE,
+                "Unsupported Media Type",
+                "Invalid Content-Type or Content-Encoding",
+                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
+            );
         }
-        throw error;
-    } catch (error) {
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(error);
+        if (
+            Object.keys(req.body).length ||
+            Object.keys(req.body).length === 0
+        ) {
+            if (
+                typeof req.body.length !== "number" ||
+                typeof req.body.offset !== "number" ||
+                typeof req.body.timestamp !== "number" ||
+                Object.keys(req.body).length > 3
+            ) {
+                throw new AppError(
+                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
+                    "Bad Request",
+                    "Invalid request payload",
+                    HttpStatusCodes.BAD_REQUEST
+                );
+            }
+        }
+        const length = req.body.length;
+        const offset = req.body.offset;
+        const timestamp = req.body.timestamp;
+        const result = homeFeedMemoriesService(length, offset, timestamp);
+        return res.status(HttpStatusCodes.OK).json(result);
+    } catch (e: unknown) {
+        return next(e);
     }
 };

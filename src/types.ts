@@ -1,3 +1,4 @@
+import ErrorCodes from "./constants/ErrorCodes";
 import HttpStatusCodes from "./constants/HttpStatusCodes";
 
 /**generic type to represent hashtag and location response */
@@ -281,22 +282,22 @@ export type ResponseBodyParams<T> = {
 
 /**a type representing a complete paginated post response body*/
 export type PaginatedPostResponseBodyParams<T extends {} = {}> =
-    ResponseBodyParams<
-        {
-            /**optional suggested account */
-            accountSuggestions?: {
-                type: AccountSuggestionType;
-                suggestions: AccountResponseParams[];
-            };
-            /**optional suggested audio*/
-            audioSuggestion?: {
-                /**audio information */
-                audio: AudioResponseParams;
-                /**a video uri created with this audio */
-                mediaUri: string;
-            };
-        } & PageResponseParams<PostResponseParams, T>
-    >;
+    ResponseBodyParams<FeedResponseParams<T>>;
+
+export type FeedResponseParams<T extends {} = {}> = {
+    /**optional suggested account */
+    accountSuggestions?: {
+        type: AccountSuggestionType;
+        suggestions: AccountResponseParams[];
+    };
+    /**optional suggested audio*/
+    audioSuggestion?: {
+        /**audio information */
+        audio: AudioResponseParams;
+        /**a video uri created with this audio */
+        mediaUri: string;
+    };
+} & PageResponseParams<PostResponseParams, T>;
 
 /**a type representing a complete paginated account response body */
 export type PaginatedAccountResponseBodyParams<T extends {} = {}> =
@@ -361,7 +362,9 @@ export type MemoryResponseParams = {
 };
 
 /**type representing the complete home feed response body*/
-export type HomeFeedResponseBodyParams = ResponseBodyParams<{
+export type HomeFeedResponseBodyParams = ResponseBodyParams<HomeFeedResponse>;
+
+export type HomeFeedResponse = {
     /**first page of accounts/memories
      * include following optional params - memoryInfo, followingInfo
      */
@@ -370,7 +373,7 @@ export type HomeFeedResponseBodyParams = ResponseBodyParams<{
     postPage: PageResponseParams<PostResponseParams>;
     /**recently searched items by the requesting account */
     searchHistory: SearchResponseParams[];
-}>;
+};
 
 /**a utility type to represent search request body*/
 export type SearchRequestBodyParams = {
@@ -398,11 +401,11 @@ export type SearchResponseParams = Partial<{
     account: AccountResponseParams;
 }>;
 
-export type SearchResponseBodyParams = ResponseBodyParams<
-    {
-        results: SearchResponseParams[];
-    } & SearchRequestBodyParams
->;
+export type SearchResponseBodyParams = ResponseBodyParams<SearchResultParams>;
+
+export type SearchResultParams = {
+    results: SearchResponseParams[];
+} & SearchRequestBodyParams;
 
 export type PaginatedPostSearchResponseBodyParams =
     PaginatedPostResponseBodyParams<SearchRequestBodyParams>;

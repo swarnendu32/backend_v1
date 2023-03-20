@@ -1,25 +1,25 @@
 import { generateAccountResponses } from "../../mock";
-import { PaginatedAccountResponseBodyParams } from "../../types";
+import { AccountResponseParams, PageResponseParams } from "../../types";
 
 export function discoverForYouFeedService(
     length: number,
     offset: number,
     timestamp: number
-): PaginatedAccountResponseBodyParams {
-    const data = generateAccountResponses(
-        length,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+): PageResponseParams<AccountResponseParams> | undefined {
+    try {
+        const data = generateAccountResponses(
+            length,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             list: data,
             meta: {
                 hasMorePages: true,
@@ -27,30 +27,31 @@ export function discoverForYouFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function discoverPopularFeedService(
     length: number = 30,
     offset: number = 0,
     timestamp: number = Date.now()
-): PaginatedAccountResponseBodyParams {
-    const data = generateAccountResponses(
-        length,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+): PageResponseParams<AccountResponseParams> | undefined {
+    try {
+        const data = generateAccountResponses(
+            length,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             list: data,
             meta: {
                 hasMorePages: true,
@@ -58,30 +59,31 @@ export function discoverPopularFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function discoverNewFeedService(
     length: number = 30,
     offset: number = 0,
     timestamp: number = Date.now()
-): PaginatedAccountResponseBodyParams {
-    const data = generateAccountResponses(
-        length,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+): PageResponseParams<AccountResponseParams> | undefined {
+    try {
+        const data = generateAccountResponses(
+            length,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             list: data,
             meta: {
                 hasMorePages: true,
@@ -89,30 +91,31 @@ export function discoverNewFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }
 
 export function discoverNearByFeedService(
     length: number = 30,
     offset: number = 0,
     timestamp: number = Date.now()
-): PaginatedAccountResponseBodyParams {
-    const data = generateAccountResponses(
-        length,
-        true,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        true,
-        true,
-        true,
-        true
-    );
-    return {
-        data: {
+): PageResponseParams<AccountResponseParams> | undefined {
+    try {
+        const data = generateAccountResponses(
+            length,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true
+        );
+        return {
             list: data,
             meta: {
                 hasMorePages: true,
@@ -120,7 +123,8 @@ export function discoverNearByFeedService(
                 offset: offset,
                 length: length,
             },
-        },
-        error: undefined,
-    };
+        };
+    } catch (e: unknown) {
+        throw e;
+    }
 }

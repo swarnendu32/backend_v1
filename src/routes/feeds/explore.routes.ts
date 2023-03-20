@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import {
     exploreFeedDataHandler,
     exploreMomentsFeedDataHandler,
@@ -15,3 +15,7 @@ exploreRouter.get("/:postId/photos", explorePhotosFeedDataHandler);
 exploreRouter.get("/:postId/videos", exploreVideosFeedDataHandler);
 
 exploreRouter.get("/:postId/moments", exploreMomentsFeedDataHandler);
+
+exploreRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
+    next({ message: "INVALID_ROUTE" });
+});
