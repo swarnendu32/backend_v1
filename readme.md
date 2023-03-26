@@ -437,3 +437,377 @@ PaginatedAccountResponseBodyParams
 ###### description
 
 returns memory informations of following accounts(if total number of memories does not exceeds threshold it will be attached to the accounts)
+
+##### post like route
+
+###### URL
+
+/posts/{post-id}/likes
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<never, PostRequestQueryParams>
+
+###### description
+
+likes the mentioned post from requesting account
+
+---
+
+###### URL
+
+/posts/{post-id}/likes
+
+###### METHOD
+
+GET
+
+###### REQUEST BODY
+
+Partial<SearchRequestBodyParams>
+
+###### RESPONSE BODY
+
+AccountListResponseBodyParams<PostRequestQueryParams & SearchRequestBodyParams>
+
+###### description
+
+get likes list of the mentioned post with an optional search query string as filter
+
+---
+
+###### URL
+
+/posts/{post-id}/likes/followings
+
+###### METHOD
+
+GET
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+AccountPageResponseBodyParams<PostRequestQueryParams>
+
+###### description
+
+get likes list of the mentioned post only from following accounts
+
+---
+
+###### URL
+
+/posts/{post-id}/comments
+
+###### METHOD
+
+POST
+
+###### REQUEST BODY
+
+TextRequestBodyParams
+
+###### RESPONSE BODY
+
+ResponseBodyParams<CommentResponseParams, PostRequestQueryParams & TextRequestBodyParams>
+
+###### description
+
+post comment to the mentioned post
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{commen-id}/likes
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, CommentRequestQueryParams>
+
+###### description
+
+add like to the mentioned comment
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{commen-id}/pin
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, CommentRequestQueryParams>
+
+###### description
+
+pin the mentioned comment
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{commen-id}/report
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, CommentRequestQueryParams>
+
+###### description
+
+report the mentioned comment
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{commen-id}/delete
+
+###### METHOD
+
+DELETE
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, CommentRequestQueryParams>
+
+###### description
+
+delete the mentioned comment
+
+---
+
+###### URL
+
+/posts/{post-id}/comments
+
+###### METHOD
+
+GET
+
+###### REQUEST BODY
+
+PageRequestBodyParams | undefined
+
+###### RESPONSE BODY
+
+CommentPageResponseBodyParams
+
+###### description
+
+get comments for the mentioned post
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{comment-id}/replies
+
+###### METHOD
+
+POST
+
+###### REQUEST BODY
+
+TextRequestBodyParams
+
+###### RESPONSE BODY
+
+ResponseBodyParams<ReplyResponseParams, CommentRequestQueryParams & TextRequestBodyParams>
+
+###### description
+
+upload reply for the mentioned comment
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/likes
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, ReplyRequestQueryParams>
+
+###### description
+
+like the mentioned reply
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/report
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, ReplyRequestQueryParams>
+
+###### description
+
+report the mentioned reply
+
+---
+
+###### URL
+
+/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/delete
+
+###### METHOD
+
+DELETE
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, ReplyRequestQueryParams>
+
+###### description
+
+delete the mentioned reply
+
+---
+
+###### URL
+
+/posts/{post-id}/save
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, PostRequestQueryParams>
+
+###### description
+
+save the mentioned post
+
+---
+
+###### URL
+
+/posts/{post-id}/save/{folder-name}
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, PostRequestQueryParams & FolderParams>
+
+###### description
+
+save the mentioned post to the mentioned folder
+
+---
+
+###### URL
+
+/posts/{post-id}/add/{folder-name}
+
+###### METHOD
+
+PUT
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+ResponseBodyParams<none, PostRequestQueryParams & FolderParams>
+
+###### description
+
+add the mentioned post to the mentioned folder
+
+---
+
+###### URL
+
+/posts/{post-id}
+
+###### METHOD
+
+GET
+
+###### REQUEST BODY
+
+none
+
+###### RESPONSE BODY
+
+PostRouteResponseBodyParams
+
+###### description
+
+get details of the mentioned post
