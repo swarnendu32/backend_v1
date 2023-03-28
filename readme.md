@@ -1,6 +1,6 @@
 ##### discover tab : suggested accounts
 
-###### URL
+<!-- ###### URL
 
 /discover/foryou
 
@@ -436,9 +436,59 @@ PaginatedAccountResponseBodyParams
 
 ###### description
 
-returns memory informations of following accounts(if total number of memories does not exceeds threshold it will be attached to the accounts)
+returns memory informations of following accounts(if total number of memories does not exceeds threshold it will be attached to the accounts) -->
 
-##### post like route
+###### URL
+
+/posts/{post-id}/delete
+
+###### METHOD
+
+DELETE
+
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
+
+none
+
+###### RESPONSE
+
+ResponseBodyParams<never, PostRequestQueryParams>
+
+###### description
+
+delete the mentioned post
+
+---
+
+###### URL
+
+/posts/{post-id}/report
+
+###### METHOD
+
+PUT
+
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
+
+ReportRequestBodyParams
+
+###### RESPONSE
+
+ResponseBodyParams<never, PostRequestQueryParams, ReportRequestBodyParams>
+
+###### description
+
+report the mentioned post
+
+---
 
 ###### URL
 
@@ -448,17 +498,21 @@ returns memory informations of following accounts(if total number of memories do
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<never, PostRequestQueryParams>
 
 ###### description
 
-likes the mentioned post from requesting account
+likes the mentioned post
 
 ---
 
@@ -470,13 +524,17 @@ likes the mentioned post from requesting account
 
 GET
 
-###### REQUEST BODY
+###### PARAMS
 
-Partial<SearchRequestBodyParams>
+PostRequestQueryParams
 
-###### RESPONSE BODY
+###### BODY
 
-AccountListResponseBodyParams<PostRequestQueryParams & SearchRequestBodyParams>
+PartialSearchRequestBodyParams
+
+###### RESPONSE
+
+AccountListResponseBodyParams<PostRequestQueryParams>
 
 ###### description
 
@@ -492,11 +550,15 @@ get likes list of the mentioned post with an optional search query string as fil
 
 GET
 
-###### REQUEST BODY
+###### PARAMS
 
-none
+PostRequestQueryParams
 
-###### RESPONSE BODY
+###### BODY
+
+PageRequestBodyParams
+
+###### RESPONSE
 
 AccountPageResponseBodyParams<PostRequestQueryParams>
 
@@ -514,13 +576,17 @@ get likes list of the mentioned post only from following accounts
 
 POST
 
-###### REQUEST BODY
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
 
 TextRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-ResponseBodyParams<CommentResponseParams, PostRequestQueryParams & TextRequestBodyParams>
+ResponseBodyParams<CommentResponseParams, PostRequestQueryParams, TextRequestBodyParams>
 
 ###### description
 
@@ -536,11 +602,15 @@ post comment to the mentioned post
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
+
+CommentRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, CommentRequestQueryParams>
 
@@ -558,11 +628,15 @@ add like to the mentioned comment
 
 PUT
 
-###### REQUEST BODY
+##### PARAMS
+
+CommentRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, CommentRequestQueryParams>
 
@@ -580,13 +654,17 @@ pin the mentioned comment
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
 
-none
+CommentRequestQueryParams
 
-###### RESPONSE BODY
+###### BODY
 
-ResponseBodyParams<none, CommentRequestQueryParams>
+ReportRequestBodyParams
+
+###### RESPONSE
+
+ResponseBodyParams<none, CommentRequestQueryParams, ReportRequestBodyParams>
 
 ###### description
 
@@ -602,11 +680,15 @@ report the mentioned comment
 
 DELETE
 
-###### REQUEST BODY
+###### PARAMS
+
+CommentRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, CommentRequestQueryParams>
 
@@ -624,11 +706,15 @@ delete the mentioned comment
 
 GET
 
-###### REQUEST BODY
+###### PARAMS
 
-PageRequestBodyParams | undefined
+PostRequestQueryParams
 
-###### RESPONSE BODY
+###### BODY
+
+PageRequestBodyParams
+
+###### RESPONSE
 
 CommentPageResponseBodyParams
 
@@ -646,13 +732,17 @@ get comments for the mentioned post
 
 POST
 
-###### REQUEST BODY
+###### PARAMS
+
+CommentRequestQueryParams
+
+###### BODY
 
 TextRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-ResponseBodyParams<ReplyResponseParams, CommentRequestQueryParams & TextRequestBodyParams>
+ResponseBodyParams<ReplyResponseParams, CommentRequestQueryParams, TextRequestBodyParams>
 
 ###### description
 
@@ -668,11 +758,15 @@ upload reply for the mentioned comment
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
+
+ReplyRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, ReplyRequestQueryParams>
 
@@ -690,13 +784,17 @@ like the mentioned reply
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
 
-none
+ReplyRequestQueryParams
 
-###### RESPONSE BODY
+###### BODY
 
-ResponseBodyParams<none, ReplyRequestQueryParams>
+ReportRequestBodyParams
+
+###### RESPONSE
+
+ResponseBodyParams<none, ReplyRequestQueryParams, ReportRequestBodyParams>
 
 ###### description
 
@@ -712,11 +810,15 @@ report the mentioned reply
 
 DELETE
 
-###### REQUEST BODY
+###### PARAMS
+
+ReplyRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, ReplyRequestQueryParams>
 
@@ -734,11 +836,15 @@ delete the mentioned reply
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 ResponseBodyParams<none, PostRequestQueryParams>
 
@@ -750,45 +856,27 @@ save the mentioned post
 
 ###### URL
 
-/posts/{post-id}/save/{folder-name}
+/posts/{post-id}/save/{collection-name}
 
 ###### METHOD
 
 PUT
 
-###### REQUEST BODY
+###### PARAMS
+
+CollectionRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
-ResponseBodyParams<none, PostRequestQueryParams & FolderParams>
-
-###### description
-
-save the mentioned post to the mentioned folder
-
----
-
-###### URL
-
-/posts/{post-id}/add/{folder-name}
-
-###### METHOD
-
-PUT
-
-###### REQUEST BODY
-
-none
-
-###### RESPONSE BODY
-
-ResponseBodyParams<none, PostRequestQueryParams & FolderParams>
+ResponseBodyParams<none, CollectionRequestQueryParams>
 
 ###### description
 
-add the mentioned post to the mentioned folder
+save the mentioned post to the mentioned collection
 
 ---
 
@@ -800,11 +888,15 @@ add the mentioned post to the mentioned folder
 
 GET
 
-###### REQUEST BODY
+###### PARAMS
+
+PostRequestQueryParams
+
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
 PostRouteResponseBodyParams
 
