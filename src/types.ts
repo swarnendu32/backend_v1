@@ -827,3 +827,8 @@ export type PostRouteResponseBodyParams = ResponseBodyParams<
   },
   PostRequestQueryParams
 >;
+
+export type ErrorResponseParams<T extends {} = {}> = {
+    meta: ResponseMetaData<T>;
+    error: AppError;
+};
