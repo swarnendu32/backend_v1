@@ -1,140 +1,138 @@
-##### discover tab : suggested accounts
+###### URL
 
-<!-- ###### URL
-
-/discover/foryou
+/feed/discover/foryou
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedAccountResponseBodyParams
+AccountPageResponseBodyParams
 
 ###### description
 
 account suggestion based on previous interactions like post interactions(suggests the author of those posts), following other accounts(suggests account that is followed by these account)
 
-##### discover tab : popular accounts
+---
 
 ###### URL
 
-/discover/popular
+/feed/discover/popular
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedAccountResponseBodyParams
+AccountPageResponseBodyParams
 
 ###### description
 
 suggests popular accounts based on number of followers(upper and lower bounds may change with time)
 
-##### discover tab : new accounts
+---
 
 ###### URL
 
-/discover/new
+/feed/discover/new
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedAccountResponseBodyParams
+AccountPageResponseBodyParams
 
 ###### description
 
 suggests new accounts created in the app(lower bound of date created may change with time)
 
-##### discover tab : nearby
+---
 
 ###### URL
 
-/discover/nearby
+/feed/discover/nearby
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedAccountResponseBodyParams
+AccountPageResponseBodyParams
 
 ###### description
 
 suggests account that are nearby to the target device(radius of search may change with time)
 
-##### foryou : photos
+---
 
 ###### URL
 
-/foryou/photos
+/feed/foryou/photos
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 suggests photos based on the users choice
 
-##### foryou : videos
+---
 
 ###### URL
 
-/foryou/videos
+/feed/foryou/videos
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 PageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 suggests videos based on the users choice
 
-##### foryou : moments
+---
 
 ###### URL
 
-/foryou/moments
+/feed/foryou/moments
 
 ###### PARAMS
 
@@ -146,27 +144,27 @@ PageRequestBodyParams
 
 ###### RESPONSE BODY
 
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 suggests moments based on the users choice
 
-##### search : general quick search
+---
 
 ###### URL
 
-/search
+/feed/search
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 SearchRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
 SearchResponseBodyParams
 
@@ -174,273 +172,245 @@ SearchResponseBodyParams
 
 returns a quick search results of popular search phases and entities(account, hashtag, location, audio)
 
-##### search : posts
-
 ###### URL
 
-/search/posts
+/feed/search/entites/posts
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
-SearchRequestPageBodyParams
+PageSearchRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedPostSearchResponseBodyParams
+PostSearchResponseBodyParams
 
 ###### description
 
 returns post search results based on search phase(searchable parameters are caption and location)
 
-##### search : account search
-
 ###### URL
 
-/search/accounts
+/feed/search/accounts
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 SearchRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-SearchResponseBodyParams
+AccountListSearchResponseBodyParams
 
 ###### description
 
 returns account search results
 
-##### search : audio search
+---
 
 ###### URL
 
-/search/audio
+/feed/search/audio
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 SearchRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-SearchResponseBodyParams
+AudioListSearchResponseBodyParams
 
 ###### description
 
 returns audio search results
 
-##### search : hashtag search
+---
 
 ###### URL
 
-/search/hashtag
+/feed/search/hashtag
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 SearchRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-SearchResponseBodyParams
+SearchResponseBodyParamsHashTagAndLocationListSearchResponseBodyParams
+
+###### description
+
+returns hashtag search results
+
+---
+
+###### URL
+
+/feed/search/locations
+
+###### PARAMS
+
+none
+
+###### BODY
+
+SearchRequestBodyParams
+
+###### RESPONSE
+
+HashTagAndLocationListSearchResponseBodyParams
 
 ###### description
 
 returns location search results
 
-##### search : locations search
-
 ###### URL
 
-/search/locations
+/feed/explore
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
-SearchRequestBodyParams
+PartialPageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-SearchResponseBodyParams
-
-###### description
-
-returns location search results
-
-##### explore : explore popular posts
-
-###### URL
-
-/explore
-
-###### PARAMS
-
-none
-
-###### REQUEST BODY
-
-PageRequestBodyParams
-
-###### RESPONSE BODY
-
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 returns popular posts based on users choice
 
-##### explore : popular photos
+---
 
 ###### URL
 
-/explore/{post-id}/photos
+/explore/{post-id}
 
 ###### PARAMS
 
 PostQueryParams
 
-###### REQUEST BODY
+###### BODY
 
-PageRequestBodyParams
+PartialPageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 returns popular photos based on a target post
 
-##### explore : popular videos
+---
 
 ###### URL
 
-/explore/{post-id}/videos
-
-###### PARAMS
-
-PostQueryParams
-
-###### REQUEST BODY
-
-PageRequestBodyParams
-
-###### RESPONSE BODY
-
-PaginatedPostResponseBodyParams
-
-###### description
-
-returns popular videos based on a target post
-
-##### explore : popular moments
-
-###### URL
-
-/explore/{post-id}/moments
-
-###### PARAMS
-
-PostQueryParams
-
-###### REQUEST BODY
-
-PageRequestBodyParams
-
-###### RESPONSE BODY
-
-PaginatedPostResponseBodyParams
-
-###### description
-
-returns popular moments based on a target post
-
-##### following
-
-###### URL
-
-/following
+/feed/home
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
 none
 
-###### RESPONSE BODY
+###### RESPONSE
 
-HomeFeedResponseBodyParams
+HomeRouteResponseBodyParams
 
 ###### description
 
-returns first batch of memory and posts from following accounts, recent searches and some account suggestions
+returns home route details
 
-##### following posts
+---
 
 ###### URL
 
-/following/posts
+/feed/home/followingposts
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
-PageRequestBodyParams
+PartialPageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedPostResponseBodyParams
+PostPageResponseBodyParams
 
 ###### description
 
 returns posts from following accounts
 
-##### following memories
+---
 
 ###### URL
 
-/following/memories
+/feed/home/followingmemories
 
 ###### PARAMS
 
 none
 
-###### REQUEST BODY
+###### BODY
 
-PageRequestBodyParams
+PartialPageRequestBodyParams
 
-###### RESPONSE BODY
+###### RESPONSE
 
-PaginatedAccountResponseBodyParams
+AccountPageResponseBodyParams
 
 ###### description
 
-returns memory informations of following accounts(if total number of memories does not exceeds threshold it will be attached to the accounts) -->
+returns memory informations of following accounts
+
+---
 
 ###### URL
 
-/posts/{post-id}/delete
+/feed/home/suggestedmemories
+
+###### PARAMS
+
+none
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+AccountPageResponseBodyParams
+
+###### description
+
+returns memory informations of suggested accounts
+
+###### URL
+
+/entites/posts/{post-id}/delete
 
 ###### METHOD
 
@@ -466,7 +436,7 @@ delete the mentioned post
 
 ###### URL
 
-/posts/{post-id}/report
+/entites/posts/{post-id}/report
 
 ###### METHOD
 
@@ -492,7 +462,7 @@ report the mentioned post
 
 ###### URL
 
-/posts/{post-id}/likes
+/entites/posts/{post-id}/likes
 
 ###### METHOD
 
@@ -518,7 +488,7 @@ likes the mentioned post
 
 ###### URL
 
-/posts/{post-id}/likes
+/entites/posts/{post-id}/likes
 
 ###### METHOD
 
@@ -534,7 +504,7 @@ PartialSearchRequestBodyParams
 
 ###### RESPONSE
 
-AccountListResponseBodyParams<PostRequestQueryParams>
+AccountListPartialSearchResponseBodyParams<PostRequestQueryParams>
 
 ###### description
 
@@ -544,7 +514,7 @@ get likes list of the mentioned post with an optional search query string as fil
 
 ###### URL
 
-/posts/{post-id}/likes/followings
+/entites/posts/{post-id}/likes/followings
 
 ###### METHOD
 
@@ -570,7 +540,7 @@ get likes list of the mentioned post only from following accounts
 
 ###### URL
 
-/posts/{post-id}/comments
+/entites/posts/{post-id}/comments
 
 ###### METHOD
 
@@ -596,7 +566,7 @@ post comment to the mentioned post
 
 ###### URL
 
-/posts/{post-id}/comments/{commen-id}/likes
+/entites/posts/{post-id}/comments/{commen-id}/likes
 
 ###### METHOD
 
@@ -622,7 +592,7 @@ add like to the mentioned comment
 
 ###### URL
 
-/posts/{post-id}/comments/{commen-id}/pin
+/entites/posts/{post-id}/comments/{commen-id}/pin
 
 ###### METHOD
 
@@ -648,7 +618,7 @@ pin the mentioned comment
 
 ###### URL
 
-/posts/{post-id}/comments/{commen-id}/report
+/entites/posts/{post-id}/comments/{commen-id}/report
 
 ###### METHOD
 
@@ -674,7 +644,7 @@ report the mentioned comment
 
 ###### URL
 
-/posts/{post-id}/comments/{commen-id}/delete
+/entites/posts/{post-id}/comments/{commen-id}/delete
 
 ###### METHOD
 
@@ -700,7 +670,7 @@ delete the mentioned comment
 
 ###### URL
 
-/posts/{post-id}/comments
+/entites/posts/{post-id}/comments
 
 ###### METHOD
 
@@ -726,7 +696,7 @@ get comments for the mentioned post
 
 ###### URL
 
-/posts/{post-id}/comments/{comment-id}/replies
+/entites/posts/{post-id}/comments/{comment-id}/replies
 
 ###### METHOD
 
@@ -752,7 +722,7 @@ upload reply for the mentioned comment
 
 ###### URL
 
-/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/likes
+/entites/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/likes
 
 ###### METHOD
 
@@ -778,7 +748,7 @@ like the mentioned reply
 
 ###### URL
 
-/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/report
+/entites/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/report
 
 ###### METHOD
 
@@ -804,7 +774,7 @@ report the mentioned reply
 
 ###### URL
 
-/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/delete
+/entites/posts/{post-id}/comments/{comment-id}/replies/{reply-id}/delete
 
 ###### METHOD
 
@@ -830,7 +800,7 @@ delete the mentioned reply
 
 ###### URL
 
-/posts/{post-id}/save
+/entites/posts/{post-id}/save
 
 ###### METHOD
 
@@ -856,7 +826,7 @@ save the mentioned post
 
 ###### URL
 
-/posts/{post-id}/save/{collection-name}
+/entites/posts/{post-id}/save/{collection-name}
 
 ###### METHOD
 
@@ -882,7 +852,7 @@ save the mentioned post to the mentioned collection
 
 ###### URL
 
-/posts/{post-id}
+/entites/posts/{post-id}
 
 ###### METHOD
 
@@ -903,3 +873,263 @@ PostRouteResponseBodyParams
 ###### description
 
 get details of the mentioned post
+
+---
+
+###### URL
+
+/entites/hashtags/{name}
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+none
+
+###### RESPONSE
+
+HashTagRouteResponseBodyParams
+
+###### description
+
+get details of the mentioned hashtag
+
+---
+
+###### URL
+
+/entites/hashtags/{name}/recent
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<HashTagAndLocationRequestQueryParams>
+
+###### description
+
+get recent posts of the mentioned hashtag
+
+---
+
+###### URL
+
+/entites/hashtags/{name}/top
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<HashTagAndLocationRequestQueryParams>
+
+###### description
+
+get top posts of the mentioned hashtag
+
+---
+
+###### URL
+
+/entites/locations/{name}
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+none
+
+###### RESPONSE
+
+LocationRouteResponseBodyParams
+
+###### description
+
+get details of the mentioned location
+
+---
+
+###### URL
+
+/entites/locations/{name}/recent
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<HashTagAndLocationRequestQueryParams>
+
+###### description
+
+get recent posts of the mentioned location
+
+---
+
+###### URL
+
+/entites/locations/{name}/top
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<HashTagAndLocationRequestQueryParams>
+
+###### description
+
+get top posts of the mentioned location
+
+---
+
+###### URL
+
+/entites/locations/{name}/taggedaccounts
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+HashTagAndLocationRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+AccountPageResponseBodyParams<HashTagAndLocationRequestQueryParams>
+
+###### description
+
+get tagged accounts of the mentioned location
+
+---
+
+###### URL
+
+/entites/audios/{audio-id}
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+AudioRequestQueryParams
+
+###### BODY
+
+none
+
+###### RESPONSE
+
+AudioRouteResponseBodyParams
+
+###### description
+
+get details of the mentioned audio
+
+---
+
+###### URL
+
+/entites/audios/{name}/photos
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+AudioRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<AudioRequestQueryParams>
+
+###### description
+
+get photo posts of the mentioned audio
+
+---
+
+###### URL
+
+/entites/audios/{name}/moments
+
+###### METHOD
+
+GET
+
+###### PARAMS
+
+AudioRequestQueryParams
+
+###### BODY
+
+PartialPageRequestBodyParams
+
+###### RESPONSE
+
+PostPageResponseBodyParams<AudioRequestQueryParams>
+
+###### description
+
+get moment posts of the mentioned audio
