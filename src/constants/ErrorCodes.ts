@@ -4,6 +4,9 @@ enum ErrorCodes {
     INVALID_REQUEST_PAYLOAD = 4000,
     INVALID_ROUTE = 4004,
     SERVER_ERROR = 5000,
+    RESOURCE_NOT_FOUND = 4005,
+    UNACCEPTABLE = 4006,
+    INVALID_METHOD = 4007,
 }
 
 export default ErrorCodes;

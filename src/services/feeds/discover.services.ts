@@ -1,130 +1,179 @@
+import ErrorCodes from "../../constants/ErrorCodes";
 import { generateAccountResponses } from "../../mock";
-import { AccountResponseParams, PageResponseParams } from "../../types";
+import {
+    AccountPageResponseBodyParams,
+    AppError,
+    HttpStatusCodes,
+} from "../../types";
 
 export function discoverForYouFeedService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): PageResponseParams<AccountResponseParams> | undefined {
+): AccountPageResponseBodyParams | undefined {
     try {
-        const data = generateAccountResponses(
-            length,
+        const result = generateAccountResponses(
+            limit,
             true,
             undefined,
             undefined,
             undefined,
-            true,
             true,
             true,
             true,
             true
         );
         return {
-            list: data,
-            meta: {
+            payload: {
+                data: result,
                 hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+            },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function discoverPopularFeedService(
-    length: number = 30,
-    offset: number = 0,
-    timestamp: number = Date.now()
-): PageResponseParams<AccountResponseParams> | undefined {
+    limit: number,
+    offset: number,
+    timestamp: number
+): AccountPageResponseBodyParams | undefined {
     try {
-        const data = generateAccountResponses(
-            length,
+        const result = generateAccountResponses(
+            limit,
             true,
             undefined,
             undefined,
             undefined,
-            true,
             true,
             true,
             true,
             true
         );
         return {
-            list: data,
-            meta: {
+            payload: {
+                data: result,
                 hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+            },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function discoverNewFeedService(
-    length: number = 30,
-    offset: number = 0,
-    timestamp: number = Date.now()
-): PageResponseParams<AccountResponseParams> | undefined {
+    limit: number,
+    offset: number,
+    timestamp: number
+): AccountPageResponseBodyParams | undefined {
     try {
-        const data = generateAccountResponses(
-            length,
+        const result = generateAccountResponses(
+            limit,
             true,
             undefined,
             undefined,
             undefined,
             undefined,
-            true,
             true,
             true,
             true
         );
         return {
-            list: data,
-            meta: {
+            payload: {
+                data: result,
                 hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+            },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function discoverNearByFeedService(
-    length: number = 30,
-    offset: number = 0,
-    timestamp: number = Date.now()
-): PageResponseParams<AccountResponseParams> | undefined {
+    limit: number,
+    offset: number,
+    timestamp: number
+): AccountPageResponseBodyParams | undefined {
     try {
-        const data = generateAccountResponses(
-            length,
+        const result = generateAccountResponses(
+            limit,
             true,
             undefined,
             undefined,
             undefined,
-            true,
             true,
             true,
             true,
             true
         );
         return {
-            list: data,
-            meta: {
+            payload: {
+                data: result,
                 hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+            },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
