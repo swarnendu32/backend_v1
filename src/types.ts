@@ -676,9 +676,20 @@ export type PageRequestParams = {
   limit: number;
 };
 
-export type PageRequestBodyParams = {
-  page?: PageRequestParams;
+export type SearchRequestBodyParams = {
+  queryString: string;
 };
+
+export type PageRequestBodyParams = {
+  page: PageRequestParams;
+};
+
+export type PartialPageRequestBodyParams = Partial<PageRequestBodyParams>;
+
+export type PartialSearchRequestBodyParams = Partial<SearchRequestBodyParams>;
+
+export type PageSearchRequestBodyParams = SearchRequestBodyParams &
+  PartialPageRequestBodyParams;
 
 export type SearchResponseParams = Partial<{
   /**popular keywords to search for */
@@ -694,15 +705,6 @@ export type SearchResponseParams = Partial<{
    */
   account: AccountResponseParams;
 }>;
-
-export type SearchRequestParams = {
-  queryString: string;
-};
-
-export type PartialSearchRequestBodyParams = Partial<SearchRequestParams>;
-
-export type SearchRequestBodyParams = SearchRequestParams &
-  PageRequestBodyParams;
 
 export type ResponseMetaData<
   T extends {} = never,
@@ -800,10 +802,6 @@ export type AccountPageResponseBodyParams<
 
 export type PostPagePayload = {
   postPage: PagePayload<AccountResponseParams>;
-  accountSuggestions?: {
-    type: AccountSuggestionType;
-    suggestions: AccountResponseParams[];
-  };
   postSuggestions?: {
     type: PostType;
     suggestions: PostResponseParams[];
@@ -812,13 +810,13 @@ export type PostPagePayload = {
 
 export type PostPageResponseBodyParams<
   T extends {} = never,
-  U extends PageRequestBodyParams = PageRequestBodyParams,
+  U extends PartialPageRequestBodyParams = PartialPageRequestBodyParams,
   V extends {} = never
 > = ResponseBodyParams<PostPagePayload, T, U, V>;
 
 export type PostSearchResponseBodyParams = PostPageResponseBodyParams<
   never,
-  SearchRequestBodyParams
+  PageSearchRequestBodyParams
 >;
 
 export type SearchResponseBodyParams = ResponseBodyParams<
@@ -827,9 +825,10 @@ export type SearchResponseBodyParams = ResponseBodyParams<
   SearchRequestBodyParams
 >;
 
-export type HomeFeedResponseBodyParams = ResponseBodyParams<{
+export type HomeRouteResponseBodyParams = ResponseBodyParams<{
   postPage: PostPagePayload;
-  accountPage: AccountPagePayload;
+  followingAccountPage: AccountPagePayload;
+  suggestedAccountPage: AccountPagePayload;
   activeAccountInfo: AccountResponseParams;
   recentSearches: SearchResponseParams[];
 }>;
@@ -848,6 +847,8 @@ export type LocationRouteResponseBodyParams = ResponseBodyParams<
     topPosts: PostPagePayload;
     recentPosts: PostPagePayload;
     location: HashTagAndLocationResponseParams;
+    taggedAccounts: AccountResponseParams[];
+    link: string;
   },
   HashTagAndLocationRequestQueryParams
 >;
@@ -872,9 +873,17 @@ export type PostRouteResponseBodyParams = ResponseBodyParams<
 
 export type AccountListResponseBodyParams<
   T extends {} = never,
-  U extends PartialSearchRequestBodyParams = never,
+  U extends {} = never,
   V extends {} = never
 > = ResponseBodyParams<AccountResponseParams[], T, U, V>;
+
+export type AccountListSearchResponseBodyParams = AccountListResponseBodyParams<
+  never,
+  SearchRequestBodyParams
+>;
+
+export type AccountListPartialSearchResponseBodyParams =
+  AccountListResponseBodyParams<never, PartialSearchRequestBodyParams>;
 
 export type HashTagAndLocationListResponseBodyParams<
   T extends {} = never,
@@ -882,11 +891,19 @@ export type HashTagAndLocationListResponseBodyParams<
   V extends {} = never
 > = ResponseBodyParams<HashTagAndLocationResponseParams[], T, U, V>;
 
+export type HashTagAndLocationListSearchResponseBodyParams =
+  HashTagAndLocationListResponseBodyParams<never, SearchRequestBodyParams>;
+
 export type AudioListResponseBodyParams<
   T extends {} = never,
-  U extends PartialSearchRequestBodyParams = never,
+  U extends {} = never,
   V extends {} = never
 > = ResponseBodyParams<AudioResponseParams[], T, U, V>;
+
+export type AudioListSearchResponseBodyParams = AudioListResponseBodyParams<
+  never,
+  SearchRequestBodyParams
+>;
 
 export type TextRequestBodyParams = {
   content: string;
