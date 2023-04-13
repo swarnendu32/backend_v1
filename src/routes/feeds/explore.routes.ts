@@ -1,21 +1,20 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import {
     exploreFeedDataHandler,
-    exploreMomentsFeedDataHandler,
-    explorePhotosFeedDataHandler,
-    exploreVideosFeedDataHandler,
+    explorePostFeedDataHandler,
 } from "../../controller/feeds/explore.controller";
+import methodHandler from "../../middleware/methodHandler";
+import validator from "../../middleware/validateResource";
+import { explorePostSchema, exploreSchema } from "../../schema/request.schema";
 
 export const exploreRouter = Router();
 
-exploreRouter.get("/", exploreFeedDataHandler);
+exploreRouter
+    .route("/")
+    .get(validator(exploreSchema), exploreFeedDataHandler)
+    .all(methodHandler);
 
-exploreRouter.get("/:postId/photos", explorePhotosFeedDataHandler);
-
-exploreRouter.get("/:postId/videos", exploreVideosFeedDataHandler);
-
-exploreRouter.get("/:postId/moments", exploreMomentsFeedDataHandler);
-
-exploreRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
-    next({ message: "INVALID_ROUTE" });
-});
+exploreRouter
+    .route("/:postId")
+    .get(validator(explorePostSchema), explorePostFeedDataHandler)
+    .all(methodHandler);

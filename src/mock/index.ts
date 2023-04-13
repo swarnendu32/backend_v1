@@ -8,7 +8,6 @@ import {
     PostType,
     ReplyResponseParams,
     SearchResponseParams,
-    VideoResponseParams,
 } from "../types";
 import { userNameData } from "./data/userName";
 import randomNumberGenerator from "../util/randomNumber";
@@ -53,6 +52,7 @@ function generateMemoryResponse(): MemoryResponseParams {
                                 : 0,
                     }
                   : undefined,
+              clipLengths: undefined,
               params: hasAudio ? audioInfo : undefined,
           }
         : undefined;
@@ -89,6 +89,7 @@ function generateMemoryResponse(): MemoryResponseParams {
         captionList.push(caption);
     }
     const captions = randomNumberGenerator(0, 1) ? captionList : undefined;
+    const hasSeen = randomNumberGenerator(0, 1) ? true : false;
 
     return {
         id,
@@ -96,6 +97,7 @@ function generateMemoryResponse(): MemoryResponseParams {
         video,
         audio,
         captions,
+        hasSeen,
     };
 }
 
@@ -109,36 +111,39 @@ function generateMemoryResponses(count: number): MemoryResponseParams[] {
 }
 
 export function generateAccountResponse(
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): AccountResponseParams {
     const id = "_id" + Date.now();
     const username =
         userIdData[randomNumberGenerator(0, userIdData.length - 1)];
+    const isActiveAccount = randomNumberGenerator(0, 1) ? true : false;
     const profilePictureUri =
         photosData[randomNumberGenerator(0, photosData.length - 1)].url;
-    const fullname = hasFullNameAttribute
-        ? userNameData[randomNumberGenerator(0, userNameData.length - 1)]
-        : undefined;
-    const isFollowing = hasFollowingAttribute
+    const fullname =
+        userNameData[randomNumberGenerator(0, userNameData.length - 1)];
+    const followingStatus = hasFollowingStatusAttribute
         ? randomNumberGenerator(0, 1)
-            ? true
-            : false
+            ? "following"
+            : randomNumberGenerator(0, 1)
+            ? "requested"
+            : "none"
         : undefined;
-    const isFollower = hasFollowerAttribute
+    const followerStatus = hasFollowerStatusAttribute
         ? randomNumberGenerator(0, 1)
-            ? true
-            : false
+            ? "following"
+            : randomNumberGenerator(0, 1)
+            ? "requested"
+            : "none"
         : undefined;
     const followingInfo = hasFollowingInfoAttribute
-        ? !isFollowing
+        ? followingStatus === "following"
             ? {
                   isFavourite: randomNumberGenerator(0, 1) ? true : false,
                   muteStatus: {
@@ -154,19 +159,7 @@ export function generateAccountResponse(
     const noOfPosts = hasNoOfPostsAttribute
         ? randomNumberGenerator(0, 500)
         : undefined;
-    const topPosts = hasTopPostsAttribute
-        ? [
-              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
-              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
-              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
-          ]
-        : undefined;
     const isPrivate = hasIsPrivateAttribute
-        ? randomNumberGenerator(0, 1)
-            ? true
-            : false
-        : undefined;
-    const hasRequested = isPrivate
         ? randomNumberGenerator(0, 1)
             ? true
             : false
@@ -178,22 +171,33 @@ export function generateAccountResponse(
                   noOfAvailableMemories: availableMemories,
                   hasUnseenMemories: randomNumberGenerator(0, 1) ? true : false,
                   memories: generateMemoryResponses(availableMemories),
+                  posterUri:
+                      photosData[
+                          randomNumberGenerator(0, photosData.length - 1)
+                      ].url,
               }
             : undefined;
+    const mediaUris = hasMediaUrisAttribute
+        ? [
+              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
+              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
+              photosData[randomNumberGenerator(0, photosData.length - 1)].url,
+          ]
+        : undefined;
     return {
         id,
         username,
+        isActiveAccount,
         profilePictureUri,
         fullname,
-        isFollowing,
-        isFollower,
+        followingStatus,
+        followerStatus,
         followingInfo,
-        hasRequested,
         noOfFollowers,
         noOfPosts,
-        topPosts,
         isPrivate,
         memoryInfo,
+        mediaUris,
     };
 }
 
@@ -204,29 +208,27 @@ export function generateAccountResponse(
  */
 export function generateAccountResponses(
     count: number,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): AccountResponseParams[] {
     let accountsResponses: AccountResponseParams[] = [];
     for (let i = 0; i < count; i++) {
         accountsResponses.push(
             generateAccountResponse(
-                hasFullNameAttribute,
-                hasFollowingAttribute,
-                hasFollowerAttribute,
+                hasFollowingStatusAttribute,
+                hasFollowerStatusAttribute,
                 hasFollowingInfoAttribute,
                 hasNoOfFollowersAttribute,
                 hasNoOfPostsAttribute,
-                hasTopPostsAttribute,
                 hasIsPrivateAttribute,
-                hasMemoryInfoAttribute
+                hasMemoryInfoAttribute,
+                hasMediaUrisAttribute
             )
         );
     }
@@ -241,15 +243,14 @@ export function generateAccountResponses(
  */
 export function generatePostResponse(
     postTypeAttribute?: PostType,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
     hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean,
     hasLocationAttribute?: boolean,
     hasCaptionAttribute?: boolean,
     hasLikesAndViewsAttribute?: boolean,
@@ -260,7 +261,7 @@ export function generatePostResponse(
     hasTemplateAttribute?: boolean,
     hasStickyMentionsAttribute?: boolean,
     hasAudioRelatedInfoAttribute?: boolean,
-    hasMediaUriAttribute?: boolean,
+    hasAudioUriAttribute?: boolean,
     hasDurationAttribute?: boolean,
     hasPreviewSectionAttribute?: boolean
 ): PostResponseParams {
@@ -276,15 +277,14 @@ export function generatePostResponse(
     const timestamp = Date.now();
     const isEdited = randomNumberGenerator(0, 1) ? true : false;
     const author = generateAccountResponse(
-        hasFullNameAttribute,
-        hasFollowingAttribute,
-        hasFollowerAttribute,
+        hasFollowingStatusAttribute,
+        hasFollowerStatusAttribute,
         hasFollowingInfoAttribute,
         hasNoOfFollowersAttribute,
         hasNoOfPostsAttribute,
-        hasTopPostsAttribute,
         hasIsPrivateAttribute,
-        hasMemoryInfoAttribute
+        hasMemoryInfoAttribute,
+        hasMediaUrisAttribute
     );
     const location = hasLocationAttribute
         ? locationsData[randomNumberGenerator(0, locationsData.length - 1)]
@@ -319,15 +319,14 @@ export function generatePostResponse(
               topComments: generateCommentResponses(
                   3,
                   hasRequestedReplyAttribute,
-                  hasFullNameAttribute,
-                  hasFollowingAttribute,
-                  hasFollowerAttribute,
+                  hasFollowingStatusAttribute,
+                  hasFollowerStatusAttribute,
                   hasFollowingInfoAttribute,
                   hasNoOfFollowersAttribute,
                   hasNoOfPostsAttribute,
-                  hasTopPostsAttribute,
                   hasIsPrivateAttribute,
-                  hasMemoryInfoAttribute
+                  hasMemoryInfoAttribute,
+                  hasMediaUrisAttribute
               ),
           }
         : undefined;
@@ -339,7 +338,7 @@ export function generatePostResponse(
     let photoItem = photosData[randomNumberGenerator(0, photosData.length - 1)];
     let videoItem = videosData[randomNumberGenerator(0, videosData.length - 1)];
     let videoRelatedData = {
-        momentRelatedInfo:
+        momentParams:
             postType === "moments"
                 ? {
                       remixedWith: hasRemixAttribute
@@ -351,11 +350,13 @@ export function generatePostResponse(
                           : undefined,
                   }
                 : undefined,
-        duration: videoItem.duration * 1000,
-        isMuted: randomNumberGenerator(0, 1) ? true : false,
-        uri: videoItem.url,
-        previewUri: photoItem.url,
-        aspectRatio: videoItem.width / videoItem.height,
+        media: {
+            duration: videoItem.duration * 1000,
+            isMuted: randomNumberGenerator(0, 1) ? true : false,
+            uri: videoItem.url,
+            previewUri: photoItem.url,
+            aspectRatio: videoItem.width / videoItem.height,
+        },
     };
     const video =
         postType === "video" || postType === "moments"
@@ -376,19 +377,22 @@ export function generatePostResponse(
     for (let i = 0; i < randomNumberGenerator(1, 10); i++) {
         let photo = photosData[randomNumberGenerator(0, photosData.length - 1)];
         let photoItem = {
-            stickyMentionPositions: hasStickyMentionsAttribute
-                ? stickyList
-                : undefined,
-            uri: photo.url,
-            previewUri: photo.url,
-            aspectRatio: photo.width / photo.height,
+            stickyMentions: hasStickyMentionsAttribute ? stickyList : undefined,
+            media: {
+                uri: photo.url,
+                previewUri: photo.url,
+                aspectRatio: photo.width / photo.height,
+            },
         };
         photoList.push(photoItem);
     }
-    const photos = postType === "photo" ? photoList : undefined;
+    let data = {
+        data: photoList,
+    };
+    const photo = postType === "photo" ? data : undefined;
     let audioInfo = generateAudioResponse(
         undefined,
-        hasMediaUriAttribute,
+        hasAudioUriAttribute,
         hasDurationAttribute,
         hasPreviewSectionAttribute
     );
@@ -421,7 +425,6 @@ export function generatePostResponse(
     const mentions = generateAccountResponses(mentionCount);
     return {
         id,
-        postType,
         timestamp,
         isEdited,
         author,
@@ -433,7 +436,7 @@ export function generatePostResponse(
         likesAndViews,
         comments,
         video,
-        photos,
+        photo,
         audio,
         mentions,
     };
@@ -448,15 +451,14 @@ export function generatePostResponse(
 export function generatePostResponses(
     count: number,
     postTypeAttribute?: PostType,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
     hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean,
     hasLocationAttribute?: boolean,
     hasCaptionAttribute?: boolean,
     hasLikesAndViewsAttribute?: boolean,
@@ -467,7 +469,7 @@ export function generatePostResponses(
     hasTemplateAttribute?: boolean,
     hasStickyMentionsAttribute?: boolean,
     hasAudioRelatedInfoAttribute?: boolean,
-    hasMediaUriAttribute?: boolean,
+    hasAudioUriAttribute?: boolean,
     hasDurationAttribute?: boolean,
     hasPreviewSectionAttribute?: boolean
 ): PostResponseParams[] {
@@ -476,15 +478,14 @@ export function generatePostResponses(
         postResponses.push(
             generatePostResponse(
                 postTypeAttribute,
-                hasFullNameAttribute,
-                hasFollowingAttribute,
-                hasFollowerAttribute,
+                hasFollowingStatusAttribute,
+                hasFollowerStatusAttribute,
                 hasFollowingInfoAttribute,
                 hasNoOfFollowersAttribute,
                 hasNoOfPostsAttribute,
-                hasTopPostsAttribute,
                 hasIsPrivateAttribute,
                 hasMemoryInfoAttribute,
+                hasMediaUrisAttribute,
                 hasLocationAttribute,
                 hasCaptionAttribute,
                 hasLikesAndViewsAttribute,
@@ -495,7 +496,7 @@ export function generatePostResponses(
                 hasTemplateAttribute,
                 hasStickyMentionsAttribute,
                 hasAudioRelatedInfoAttribute,
-                hasMediaUriAttribute,
+                hasAudioUriAttribute,
                 hasDurationAttribute,
                 hasPreviewSectionAttribute
             )
@@ -509,30 +510,28 @@ export function generatePostResponses(
  * @returns a reply response object
  */
 export function generateReplyResponse(
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): ReplyResponseParams {
     const id = "_id" + Date.now();
     const content =
         captionsData[randomNumberGenerator(0, captionsData.length - 1)];
     const timestamp = Date.now();
     const author = generateAccountResponse(
-        hasFullNameAttribute,
-        hasFollowingAttribute,
-        hasFollowerAttribute,
+        hasFollowingStatusAttribute,
+        hasFollowerStatusAttribute,
         hasFollowingInfoAttribute,
         hasNoOfFollowersAttribute,
         hasNoOfPostsAttribute,
-        hasTopPostsAttribute,
         hasIsPrivateAttribute,
-        hasMemoryInfoAttribute
+        hasMemoryInfoAttribute,
+        hasMediaUrisAttribute
     );
     const noOfLikes = randomNumberGenerator(0, 100000);
     const isLiked = randomNumberGenerator(0, 1) ? true : false;
@@ -546,29 +545,27 @@ export function generateReplyResponse(
  */
 export function generateReplyResponses(
     count: number,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): ReplyResponseParams[] {
     let replyResponses: ReplyResponseParams[] = [];
     for (let i = 0; i < count; i++) {
         replyResponses.push(
             generateReplyResponse(
-                hasFullNameAttribute,
-                hasFollowingAttribute,
-                hasFollowerAttribute,
+                hasFollowingStatusAttribute,
+                hasFollowerStatusAttribute,
                 hasFollowingInfoAttribute,
                 hasNoOfFollowersAttribute,
                 hasNoOfPostsAttribute,
-                hasTopPostsAttribute,
                 hasIsPrivateAttribute,
-                hasMemoryInfoAttribute
+                hasMemoryInfoAttribute,
+                hasMediaUrisAttribute
             )
         );
     }
@@ -581,44 +578,39 @@ export function generateReplyResponses(
  */
 export function generateCommentResponse(
     hasRequestedReplyAttribute?: boolean,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): CommentResponseParams {
-    const replies = {
-        noOfReplies: randomNumberGenerator(0, 30),
-        requestedReply: hasRequestedReplyAttribute
-            ? generateReplyResponse(
-                  hasFullNameAttribute,
-                  hasFollowingAttribute,
-                  hasFollowerAttribute,
-                  hasFollowingInfoAttribute,
-                  hasNoOfFollowersAttribute,
-                  hasNoOfPostsAttribute,
-                  hasTopPostsAttribute,
-                  hasIsPrivateAttribute,
-                  hasMemoryInfoAttribute
-              )
-            : undefined,
-    };
+    const noOfReplies = randomNumberGenerator(0, 30);
+    const requestedReply = hasRequestedReplyAttribute
+        ? generateReplyResponse(
+              hasFollowingStatusAttribute,
+              hasFollowerStatusAttribute,
+              hasFollowingInfoAttribute,
+              hasNoOfFollowersAttribute,
+              hasNoOfPostsAttribute,
+              hasIsPrivateAttribute,
+              hasMemoryInfoAttribute,
+              hasMediaUrisAttribute
+          )
+        : undefined;
     let isPinned = randomNumberGenerator(0, 1) ? true : false;
     const { id, content, timestamp, author, noOfLikes, isLiked } =
         generateReplyResponse(
-            hasFullNameAttribute,
-            hasFollowingAttribute,
-            hasFollowerAttribute,
+            hasFollowingStatusAttribute,
+            hasFollowerStatusAttribute,
             hasFollowingInfoAttribute,
             hasNoOfFollowersAttribute,
             hasNoOfPostsAttribute,
-            hasTopPostsAttribute,
             hasIsPrivateAttribute,
-            hasMemoryInfoAttribute
+            hasMemoryInfoAttribute,
+            hasMediaUrisAttribute
         );
     return {
         id,
@@ -627,7 +619,8 @@ export function generateCommentResponse(
         author,
         noOfLikes,
         isLiked,
-        replies,
+        noOfReplies,
+        requestedReply,
         isPinned,
     };
 }
@@ -640,30 +633,28 @@ export function generateCommentResponse(
 export function generateCommentResponses(
     count: number,
     hasRequestedReplyAttribute?: boolean,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): CommentResponseParams[] {
     let commentResponses: CommentResponseParams[] = [];
     for (let i = 0; i < count; i++) {
         commentResponses.push(
             generateCommentResponse(
                 hasRequestedReplyAttribute,
-                hasFullNameAttribute,
-                hasFollowingAttribute,
-                hasFollowerAttribute,
+                hasFollowingStatusAttribute,
+                hasFollowerStatusAttribute,
                 hasFollowingInfoAttribute,
                 hasNoOfFollowersAttribute,
                 hasNoOfPostsAttribute,
-                hasTopPostsAttribute,
                 hasIsPrivateAttribute,
-                hasMemoryInfoAttribute
+                hasMemoryInfoAttribute,
+                hasMediaUrisAttribute
             )
         );
     }
@@ -677,20 +668,19 @@ export function generateCommentResponses(
 
 export function generateAudioResponse(
     hasArtistAccountAttribute?: boolean,
-    hasMediaUriAttribute?: boolean,
+    hasAudioUriAttribute?: boolean,
     hasDurationAttribute?: boolean,
     hasPreviewSectionAttribute?: boolean,
     hasPhotosAndMomentsAttribute?: boolean,
     hasIsSavedAttribute?: boolean,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): AudioResponseParams {
     const id = "_id" + Date.now();
     let audio = audiosData[randomNumberGenerator(0, audiosData.length - 1)];
@@ -698,20 +688,19 @@ export function generateAudioResponse(
     const artistName = audio.artist;
     const artistAccount = hasArtistAccountAttribute
         ? generateAccountResponse(
-              hasFullNameAttribute,
-              hasFollowingAttribute,
-              hasFollowerAttribute,
+              hasFollowingStatusAttribute,
+              hasFollowerStatusAttribute,
               hasFollowingInfoAttribute,
               hasNoOfFollowersAttribute,
               hasNoOfPostsAttribute,
-              hasTopPostsAttribute,
               hasIsPrivateAttribute,
-              hasMemoryInfoAttribute
+              hasMemoryInfoAttribute,
+              hasMediaUrisAttribute
           )
         : undefined;
     const posterUri =
         photosData[randomNumberGenerator(0, photosData.length - 1)].url;
-    const mediaUri = hasMediaUriAttribute ? audio.url : undefined;
+    const mediaUri = hasAudioUriAttribute ? audio.url : undefined;
     const duration = hasDurationAttribute ? audio.duration * 1000 : undefined;
     let clipDuration = randomNumberGenerator(5000, 59999);
     let previewStart = randomNumberGenerator(
@@ -757,15 +746,14 @@ export function generateAudioResponses(
     hasPreviewSectionAttribute?: boolean,
     hasPhotosAndMomentsAttribute?: boolean,
     hasIsSavedAttribute?: boolean,
-    hasFullNameAttribute?: boolean,
-    hasFollowingAttribute?: boolean,
-    hasFollowerAttribute?: boolean,
+    hasFollowingStatusAttribute?: boolean,
+    hasFollowerStatusAttribute?: boolean,
     hasFollowingInfoAttribute?: boolean,
     hasNoOfFollowersAttribute?: boolean,
     hasNoOfPostsAttribute?: boolean,
-    hasTopPostsAttribute?: boolean,
     hasIsPrivateAttribute?: boolean,
-    hasMemoryInfoAttribute?: boolean
+    hasMemoryInfoAttribute?: boolean,
+    hasMediaUrisAttribute?: boolean
 ): AudioResponseParams[] {
     let audioResponses: AudioResponseParams[] = [];
     for (let i = 0; i < count; i++) {
@@ -777,20 +765,34 @@ export function generateAudioResponses(
                 hasPreviewSectionAttribute,
                 hasPhotosAndMomentsAttribute,
                 hasIsSavedAttribute,
-                hasFullNameAttribute,
-                hasFollowingAttribute,
-                hasFollowerAttribute,
+                hasFollowingStatusAttribute,
+                hasFollowerStatusAttribute,
                 hasFollowingInfoAttribute,
                 hasNoOfFollowersAttribute,
                 hasNoOfPostsAttribute,
-                hasTopPostsAttribute,
                 hasIsPrivateAttribute,
-                hasMemoryInfoAttribute
+                hasMemoryInfoAttribute,
+                hasMediaUrisAttribute
             )
         );
     }
     return audioResponses;
 }
+
+export function generateHashTagLocationResponses(): HashTagAndLocationResponseParams[] {
+    let result: HashTagAndLocationResponseParams[] = [];
+    for (let i = 0; i < 30; i++) {
+        let data = {
+            name: locationsData[
+                randomNumberGenerator(0, locationsData.length - 1)
+            ],
+            noOfPosts: randomNumberGenerator(0, 10000),
+        };
+        result.push(data);
+    }
+    return result;
+}
+
 export function generateSearchResponse(
     hasKeywordAttribute?: boolean,
     hasHashtagAttribute?: boolean,
@@ -824,15 +826,14 @@ export function generateSearchResponse(
         : undefined;
     const account = hasAccountAttribute
         ? generateAccountResponse(
-              true,
-              true,
-              true,
+              undefined,
               undefined,
               undefined,
               undefined,
               undefined,
               true,
-              true
+              true,
+              undefined
           )
         : undefined;
 

@@ -6,7 +6,10 @@ import {
     homeFeedPostsService,
     homeFeedService,
 } from "../../services/feeds/home.services";
-import { PageRequestBodyParams } from "../../types";
+import {
+    PageRequestBodyParams,
+    PartialPageRequestBodyParams,
+} from "../../types";
 import AppError from "../../util/appError";
 
 export const homeFeedDataHandler = (
@@ -15,109 +18,82 @@ export const homeFeedDataHandler = (
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (Object.keys(req.body).length) {
-            throw new AppError(
-                ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                "Bad Request",
-                "Invalid request payload",
-                HttpStatusCodes.BAD_REQUEST
-            );
-        }
         const result = homeFeedService();
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const homeFeedPostsDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const length = req.body.length;
-        const offset = req.body.offset;
-        const timestamp = req.body.timestamp;
-        const result = homeFeedPostsService(length, offset, timestamp);
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const result = homeFeedPostsService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const homeFeedMemoriesDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const length = req.body.length;
-        const offset = req.body.offset;
-        const timestamp = req.body.timestamp;
-        const result = homeFeedMemoriesService(length, offset, timestamp);
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const result = homeFeedMemoriesService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };

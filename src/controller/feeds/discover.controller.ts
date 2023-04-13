@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ErrorCodes from "../../constants/ErrorCodes";
 import HttpStatusCodes from "../../constants/HttpStatusCodes";
 import {
     discoverForYouFeedService,
@@ -7,182 +6,128 @@ import {
     discoverNewFeedService,
     discoverPopularFeedService,
 } from "../../services/feeds/discover.services";
-import { PageRequestBodyParams } from "../../types";
-import AppError from "../../util/appError";
+import {
+    PageRequestBodyParams,
+    PartialPageRequestBodyParams,
+} from "../../types";
 
 export const discoverForYouFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (Object.keys(req.body).length) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.INTERNAL_SERVER_ERROR
-                );
-            }
-        }
-        let length: number =
-            Object.keys(req.body).length === 0 ? 10 : req.body.length;
-        let offset: number =
-            Object.keys(req.body).length === 0 ? 0 : req.body.offset;
-        let timestamp: number =
-            Object.keys(req.body).length === 0
-                ? Date.now()
-                : req.body.timestamp;
-        const result = discoverForYouFeedService(length, offset, timestamp);
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const result = discoverForYouFeedService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const discoverPopularFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (Object.keys(req.body).length) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.INTERNAL_SERVER_ERROR
-                );
-            }
-        }
-        let length: number =
-            Object.keys(req.body).length === 0 ? 10 : req.body.length;
-        let offset: number =
-            Object.keys(req.body).length === 0 ? 0 : req.body.offset;
-        let timestamp: number =
-            Object.keys(req.body).length === 0
-                ? Date.now()
-                : req.body.timestamp;
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
 
-        const result = discoverPopularFeedService(length, offset, timestamp);
+        const result = discoverPopularFeedService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const discoverNewFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (Object.keys(req.body).length) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.INTERNAL_SERVER_ERROR
-                );
-            }
-        }
-        let length: number =
-            Object.keys(req.body).length === 0 ? 10 : req.body.length;
-        let offset: number =
-            Object.keys(req.body).length === 0 ? 0 : req.body.offset;
-        let timestamp: number =
-            Object.keys(req.body).length === 0
-                ? Date.now()
-                : req.body.timestamp;
-        const result = discoverNewFeedService(length, offset, timestamp);
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const result = discoverNewFeedService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const discoverNearByFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (Object.keys(req.body).length) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                Object.keys(req.body).length > 3
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.INTERNAL_SERVER_ERROR
-                );
-            }
-        }
-        let length: number =
-            Object.keys(req.body).length === 0 ? 10 : req.body.length;
-        let offset: number =
-            Object.keys(req.body).length === 0 ? 0 : req.body.offset;
-        let timestamp: number =
-            Object.keys(req.body).length === 0
-                ? Date.now()
-                : req.body.timestamp;
-        const result = discoverNearByFeedService(length, offset, timestamp);
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const result = discoverNearByFeedService(limit, offset, timestamp);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
