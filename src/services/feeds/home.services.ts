@@ -1,62 +1,62 @@
 import {
-    AccountResponseParams,
-    FeedResponseParams,
-    HomeFeedResponse,
-    PageResponseParams,
+    AccountPageResponseBodyParams,
+    AppError,
+    HomeRouteResponseBodyParams,
+    HttpStatusCodes,
+    PostPageResponseBodyParams,
 } from "./../../types";
 import {
     generateAccountResponses,
     generatePostResponses,
     generateSearchResponses,
 } from "../../mock";
+import ErrorCodes from "../../constants/ErrorCodes";
 
 export function homeFeedService(
-    length: number = 10,
+    limit: number = 10,
     offset: number = 0,
     timestamp: number = Date.now()
-): HomeFeedResponse {
+): HomeRouteResponseBodyParams {
     try {
-        const accountData = generateAccountResponses(
-            length,
+        const accountResult = generateAccountResponses(
+            limit,
+            undefined,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            undefined
+        );
+
+        const postResult = generatePostResponses(
+            limit,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            undefined,
+            undefined,
+            undefined,
             true,
             undefined,
             true,
             true,
+            true,
+            true,
+            true,
             undefined,
-            undefined,
-            undefined,
-            undefined,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
             true
         );
 
-        const postData = generatePostResponses(
-            length,
-            undefined,
-            true,
-            undefined,
-            true,
-            true,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true
-        );
-
-        const searchData = generateSearchResponses(
+        const searchResult = generateSearchResponses(
             10,
             true,
             undefined,
@@ -66,49 +66,59 @@ export function homeFeedService(
         );
 
         return {
-            memoryPage: {
-                list: accountData,
-                meta: {
-                    hasMorePages: true,
-                    length: length,
-                    offset: offset,
-                    timestamp: timestamp,
+            payload: {
+                activeAccountInfo: accountResult[0],
+                followingAccountPage: {
+                    data: accountResult,
+                    hasMorePages: false,
+                },
+                postPage: {
+                    postPage: {
+                        data: accountResult,
+                        hasMorePages: false,
+                    },
+                    postSuggestions: {
+                        suggestions: postResult,
+                        type: "moments",
+                    },
+                },
+                recentSearches: searchResult,
+                suggestedAccountPage: {
+                    data: accountResult,
+                    hasMorePages: false,
                 },
             },
-            postPage: {
-                list: postData,
-                meta: {
-                    hasMorePages: true,
-                    length: length,
-                    offset: offset,
-                    timestamp: timestamp,
-                },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
             },
-            searchHistory: searchData,
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function homeFeedPostsService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams | undefined {
+): PostPageResponseBodyParams | undefined {
     try {
-        const postData = generatePostResponses(
-            length,
-            undefined,
-            true,
-            undefined,
-            true,
-            true,
-            undefined,
+        const postResult = generatePostResponses(
+            limit,
             undefined,
             undefined,
             undefined,
             true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            undefined,
             true,
             true,
             true,
@@ -124,45 +134,58 @@ export function homeFeedPostsService(
             true
         );
 
-        const accountData = generateAccountResponses(
-            10,
-            true,
-            undefined,
-            true,
-            undefined,
-            undefined,
+        const accountResult = generateAccountResponses(
+            limit,
             undefined,
             undefined,
             true,
-            true
+            undefined,
+            undefined,
+            undefined,
+            true,
+            undefined
         );
 
         return {
-            accountSuggestions: {
-                type: "foryou",
-                suggestions: accountData,
+            payload: {
+                postPage: {
+                    data: accountResult,
+                    hasMorePages: false,
+                },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "moments",
+                },
             },
-            list: postData,
             meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function homeFeedMemoriesService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): PageResponseParams<AccountResponseParams> | undefined {
+): AccountPageResponseBodyParams | undefined {
     try {
-        const accountData = generateAccountResponses(
-            length,
+        const accountResult = generateAccountResponses(
+            limit,
             undefined,
             undefined,
             true,
@@ -170,19 +193,30 @@ export function homeFeedMemoriesService(
             undefined,
             undefined,
             undefined,
-            undefined,
-            true
+            undefined
         );
         return {
-            list: accountData,
-            meta: {
+            payload: {
+                data: accountResult,
                 hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
+            },
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }

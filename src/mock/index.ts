@@ -778,6 +778,21 @@ export function generateAudioResponses(
     }
     return audioResponses;
 }
+
+export function generateHashTagLocationResponses(): HashTagAndLocationResponseParams[] {
+    let result: HashTagAndLocationResponseParams[] = [];
+    for (let i = 0; i < 30; i++) {
+        let data = {
+            name: locationsData[
+                randomNumberGenerator(0, locationsData.length - 1)
+            ],
+            noOfPosts: randomNumberGenerator(0, 10000),
+        };
+        result.push(data);
+    }
+    return result;
+}
+
 export function generateSearchResponse(
     hasKeywordAttribute?: boolean,
     hasHashtagAttribute?: boolean,
@@ -811,13 +826,13 @@ export function generateSearchResponse(
         : undefined;
     const account = hasAccountAttribute
         ? generateAccountResponse(
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
               true,
               true,
-              true,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
               undefined
           )
         : undefined;

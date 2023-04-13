@@ -10,8 +10,8 @@ import {
     searchPostsEntityService,
 } from "../../services/feeds/search.services";
 import {
+    PageSearchRequestBodyParams,
     SearchRequestBodyParams,
-    SearchRequestPageBodyParams,
 } from "../../types";
 import AppError from "../../util/appError";
 
@@ -21,84 +21,60 @@ export const searchEntityHandler = (
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.query !== "string" ||
-                Object.keys(req.body).length > 1
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const query = req.body.query;
-        const result = searchEntityService(query);
+        const queryString = req.body.queryString;
+        const result = searchEntityService(queryString);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
 export const searchPostsEntityHandler = (
-    req: Request<{}, {}, SearchRequestPageBodyParams>,
+    req: Request<{}, {}, PageSearchRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.length !== "number" ||
-                typeof req.body.offset !== "number" ||
-                typeof req.body.timestamp !== "number" ||
-                typeof req.body.query !== "string" ||
-                Object.keys(req.body).length > 4
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const length = req.body.length;
-        const offset = req.body.offset;
-        const timestamp = req.body.timestamp;
-        const query = req.body.query;
+        const limit = req.body.page === undefined ? 10 : req.body.page.limit;
+        const offset = req.body.page === undefined ? 0 : req.body.page.offset;
+        const timestamp =
+            req.body.page === undefined ? Date.now() : req.body.page.timestamp;
+        const queryString = req.body.queryString;
         const result = searchPostsEntityService(
-            length,
+            limit,
             offset,
             timestamp,
-            query
+            queryString
         );
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
@@ -108,35 +84,24 @@ export const searchAccountsEntityHandler = (
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.query !== "string" ||
-                Object.keys(req.body).length > 1
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const query = req.body.query;
-        const result = searchAccountsEntityService(query);
+        const queryString = req.body.queryString;
+        const result = searchAccountsEntityService(queryString);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
@@ -145,33 +110,25 @@ export const searchAudiosEntityHandler = (
     res: Response,
     next: NextFunction
 ) => {
-    if (req.headers["content-type"] !== "application/json") {
-        throw new AppError(
-            ErrorCodes.INVALID_CONTENT_TYPE,
-            "Unsupported Media Type",
-            "Invalid Content-Type or Content-Encoding",
-            HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-        );
-    }
-    if (Object.keys(req.body).length || Object.keys(req.body).length === 0) {
-        if (
-            typeof req.body.query !== "string" ||
-            Object.keys(req.body).length > 1
-        ) {
-            throw new AppError(
-                ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                "Bad Request",
-                "Invalid request payload",
-                HttpStatusCodes.BAD_REQUEST
-            );
-        }
-    }
-    const query = req.body.query;
     try {
-        const result = searchAudiosEntityService(query);
+        const queryString = req.body.queryString;
+        const result = searchAudiosEntityService(queryString);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
@@ -181,35 +138,24 @@ export const searchHashtagsEntityHandler = (
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.query !== "string" ||
-                Object.keys(req.body).length > 1
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const query = req.body.query;
-        const result = searchHashtagEntityService(query);
+        const queryString = req.body.queryString;
+        const result = searchHashtagEntityService(queryString);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };
 
@@ -219,34 +165,23 @@ export const searchLocationsEntityHandler = (
     next: NextFunction
 ) => {
     try {
-        if (req.headers["content-type"] !== "application/json") {
-            throw new AppError(
-                ErrorCodes.INVALID_CONTENT_TYPE,
-                "Unsupported Media Type",
-                "Invalid Content-Type or Content-Encoding",
-                HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
-            );
-        }
-        if (
-            Object.keys(req.body).length ||
-            Object.keys(req.body).length === 0
-        ) {
-            if (
-                typeof req.body.query !== "string" ||
-                Object.keys(req.body).length > 1
-            ) {
-                throw new AppError(
-                    ErrorCodes.INVALID_REQUEST_PAYLOAD,
-                    "Bad Request",
-                    "Invalid request payload",
-                    HttpStatusCodes.BAD_REQUEST
-                );
-            }
-        }
-        const query = req.body.query;
-        const result = searchLocationEntityService(query);
+        const queryString = req.body.queryString;
+        const result = searchLocationEntityService(queryString);
         return res.status(HttpStatusCodes.OK).json(result);
-    } catch (e: unknown) {
-        return next(e);
+    } catch (e: any) {
+        let error = {
+            meta: {
+                status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                timestamp: Date.now(),
+                body: req.body,
+                params: req.params,
+            },
+            error: {
+                code: e.code,
+                message: e.message,
+                cause: e.cause,
+            },
+        };
+        return next(error);
     }
 };

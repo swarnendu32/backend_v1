@@ -1,47 +1,38 @@
+import ErrorCodes from "../../constants/ErrorCodes";
 import {
     generateAccountResponses,
     generateAudioResponse,
     generatePostResponses,
 } from "../../mock";
 import { videosData } from "../../mock/data/videos";
-import { FeedResponseParams } from "../../types";
+import {
+    AppError,
+    HttpStatusCodes,
+    PostPageResponseBodyParams,
+} from "../../types";
 import randomNumberGenerator from "../../util/randomNumber";
 
 export function foryouPhotosFeedService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams | undefined {
+): PostPageResponseBodyParams | undefined {
     try {
-        const data = generatePostResponses(
-            length,
+        const postResult = generatePostResponses(
+            limit,
             "photo",
             true,
             undefined,
-            true,
             undefined,
             undefined,
             undefined,
             undefined,
-            false,
             true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            undefined,
-            undefined,
             undefined,
             true,
             true,
             true,
             true,
-            undefined
-        );
-
-        const accountData = generateAccountResponses(
-            3,
             true,
             undefined,
             undefined,
@@ -52,42 +43,64 @@ export function foryouPhotosFeedService(
             true,
             true
         );
+
+        const accountResult = generateAccountResponses(
+            3,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true
+        );
         return {
-            accountSuggestions: {
-                type: "foryou",
-                suggestions: accountData,
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "photo",
+                },
             },
-            list: data,
             meta: {
-                hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function foryouVideosFeedService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams | undefined {
+): PostPageResponseBodyParams | undefined {
     try {
-        const postData = generatePostResponses(
-            length,
+        const postResult = generatePostResponses(
+            limit,
             "video",
             true,
             undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
             true,
             undefined,
-            undefined,
-            undefined,
-            undefined,
-            false,
-            true,
             true,
             true,
             true,
@@ -103,7 +116,7 @@ export function foryouVideosFeedService(
             undefined
         );
 
-        const accountData = generateAccountResponses(
+        const accountResult = generateAccountResponses(
             3,
             true,
             undefined,
@@ -112,45 +125,54 @@ export function foryouVideosFeedService(
             true,
             true,
             true,
-            true,
             true
         );
         return {
-            accountSuggestions: {
-                type: "foryou",
-                suggestions: accountData,
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "video",
+                },
             },
-            list: postData,
             meta: {
-                hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function foryouMomentsFeedService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams | undefined {
+): PostPageResponseBodyParams | undefined {
     try {
-        const data = generatePostResponses(
-            length,
+        const postResult = generatePostResponses(
+            limit,
             "moments",
             true,
             undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
             true,
             undefined,
-            undefined,
-            undefined,
-            undefined,
-            false,
-            true,
             true,
             true,
             true,
@@ -165,40 +187,43 @@ export function foryouMomentsFeedService(
             true,
             true
         );
-        const audioData = generateAudioResponse(
-            undefined,
-            true,
-            true,
-            true,
+        const accountResult = generateAccountResponses(
+            3,
             true,
             undefined,
             undefined,
             undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined
+            true,
+            true,
+            true,
+            true
         );
 
         return {
-            audioSuggestion: {
-                audio: audioData,
-                mediaUri:
-                    videosData[randomNumberGenerator(0, videosData.length - 1)]
-                        .url,
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "video",
+                },
             },
-            list: data,
             meta: {
-                hasMorePages: true,
-                timestamp: timestamp,
-                offset: offset,
-                length: length,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }

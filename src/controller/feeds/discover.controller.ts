@@ -6,10 +6,13 @@ import {
     discoverNewFeedService,
     discoverPopularFeedService,
 } from "../../services/feeds/discover.services";
-import { PageRequestBodyParams } from "../../types";
+import {
+    PageRequestBodyParams,
+    PartialPageRequestBodyParams,
+} from "../../types";
 
 export const discoverForYouFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
@@ -39,7 +42,7 @@ export const discoverForYouFeedDataHandler = (
 };
 
 export const discoverPopularFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
@@ -70,7 +73,7 @@ export const discoverPopularFeedDataHandler = (
 };
 
 export const discoverNewFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {
@@ -100,7 +103,7 @@ export const discoverNewFeedDataHandler = (
 };
 
 export const discoverNearByFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request<{}, {}, PartialPageRequestBodyParams>,
     res: Response,
     next: NextFunction
 ) => {

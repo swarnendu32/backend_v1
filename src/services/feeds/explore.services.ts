@@ -1,22 +1,20 @@
+import ErrorCodes from "../../constants/ErrorCodes";
+import { generateAccountResponses, generatePostResponses } from "../../mock";
 import {
-    generateAccountResponses,
-    generateAudioResponse,
-    generatePostResponses,
-} from "../../mock";
-import { videosData } from "../../mock/data/videos";
-import { FeedResponseParams } from "../../types";
-import randomNumberGenerator from "../../util/randomNumber";
+    AppError,
+    HttpStatusCodes,
+    PostPageResponseBodyParams,
+    PostRequestQueryParams,
+} from "../../types";
 
 export function exploreFeedService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams | undefined {
+): PostPageResponseBodyParams | undefined {
     try {
-        const postData = generatePostResponses(
-            length,
-            undefined,
-            true,
+        const postResult = generatePostResponses(
+            limit,
             undefined,
             true,
             undefined,
@@ -25,11 +23,12 @@ export function exploreFeedService(
             undefined,
             undefined,
             true,
+            undefined,
             true,
             true,
             true,
             true,
-            true,
+            undefined,
             undefined,
             true,
             true,
@@ -39,54 +38,7 @@ export function exploreFeedService(
             true,
             true
         );
-        return {
-            list: postData,
-            meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
-            },
-        };
-    } catch (e: unknown) {
-        throw e;
-    }
-}
-
-export function explorePhotosFeedService(
-    postId: string,
-    length: number,
-    offset: number,
-    timestamp: number
-): FeedResponseParams<{ postId: string }> {
-    try {
-        const postData = generatePostResponses(
-            length,
-            "photo",
-            true,
-            undefined,
-            true,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            undefined,
-            undefined,
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            true
-        );
-        const accountData = generateAccountResponses(
+        const accountResult = generateAccountResponses(
             3,
             true,
             undefined,
@@ -95,39 +47,46 @@ export function explorePhotosFeedService(
             true,
             true,
             true,
-            true,
             true
         );
         return {
-            accountSuggestions: {
-                suggestions: accountData,
-                type: "foryou",
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "moments",
+                },
             },
-            list: postData,
             meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
-                postId: postId,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
-export function exploreVideosFeedService(
+export function explorePostFeedService(
     postId: string,
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number
-): FeedResponseParams<{ postId: string }> {
+): PostPageResponseBodyParams<PostRequestQueryParams> {
     try {
-        const postData = generatePostResponses(
-            length,
-            "video",
-            true,
+        const postResult = generatePostResponses(
+            limit,
             undefined,
             true,
             undefined,
@@ -135,100 +94,52 @@ export function exploreVideosFeedService(
             undefined,
             undefined,
             undefined,
+            undefined,
+            undefined,
+            true,
+            true,
+            true,
+            true,
+            true,
+            undefined,
             true,
             true,
             true,
             true,
             true,
             true,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined
+            true
         );
-        return {
-            list: postData,
-            meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
-                postId: postId,
-            },
-        };
-    } catch (e: unknown) {
-        throw e;
-    }
-}
-
-export function exploreMomentsFeedService(
-    postId: string,
-    length: number,
-    offset: number,
-    timestamp: number
-): FeedResponseParams<{ postId: string }> {
-    try {
-        const postData = generatePostResponses(
-            length,
-            "moments",
-            true,
-            undefined,
+        const accountResult = generateAccountResponses(
+            3,
             true,
             undefined,
             undefined,
-            undefined,
-            undefined,
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            undefined,
-            true,
-            true,
             undefined,
             true,
             true,
             true,
             true
         );
-        const audioData = generateAudioResponse(
-            undefined,
-            true,
-            true,
-            true,
-            true,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined
-        );
         return {
-            audioSuggestion: {
-                audio: audioData,
-                mediaUri:
-                    videosData[randomNumberGenerator(0, videosData.length - 1)]
-                        .url,
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: {
+                    suggestions: postResult,
+                    type: "moments",
+                },
             },
-            list: postData,
             meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
-                postId: postId,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                params: { postId: postId },
+                body: {
+                    page: {
+                        limit: limit,
+                        offset: offset,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
     } catch (e: unknown) {

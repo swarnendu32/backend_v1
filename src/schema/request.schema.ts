@@ -1,5 +1,124 @@
 import { z } from "zod";
 
+export const discoverSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z
+        .object({
+            page: z
+                .object({
+                    limit: z.number(),
+                    offset: z.number(),
+                    timestamp: z.number(),
+                })
+                .strict()
+                .optional(),
+        })
+        .strict(),
+});
+
+export const exploreSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z
+        .object({
+            page: z
+                .object({
+                    limit: z.number(),
+                    offset: z.number(),
+                    timestamp: z.number(),
+                })
+                .strict()
+                .optional(),
+        })
+        .strict(),
+});
+
+export const explorePostSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    params: z.object({
+        postId: z.string(),
+    }),
+    body: z
+        .object({
+            page: z
+                .object({
+                    limit: z.number(),
+                    offset: z.number(),
+                    timestamp: z.number(),
+                })
+                .strict()
+                .optional(),
+        })
+        .strict(),
+});
+
+export const foryouSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z.object({}).strict(),
+});
+
+export const homeSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z.object({}).strict(),
+});
+
+export const homeFeedSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z
+        .object({
+            page: z
+                .object({
+                    limit: z.number(),
+                    offset: z.number(),
+                    timestamp: z.number(),
+                })
+                .strict()
+                .optional(),
+        })
+        .strict(),
+});
+
+export const searchSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z
+        .object({
+            queryString: z.string(),
+        })
+        .strict(),
+});
+
+export const pageSearchSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    body: z
+        .object({
+            queryString: z.string(),
+            page: z
+                .object({
+                    limit: z.number(),
+                    offset: z.number(),
+                    timestamp: z.number(),
+                })
+                .strict()
+                .optional(),
+        })
+        .strict(),
+});
+
 export const deletePostSchema = z.object({
     header: z.object({
         "content-type": z.literal("application/json"),
@@ -65,6 +184,7 @@ export const postGetFollowingLikesSchema = z.object({
                     offset: z.number(),
                     timestamp: z.number(),
                 })
+                .strict()
                 .optional(),
         })
         .strict(),
@@ -149,6 +269,7 @@ export const postGetCommentsSchema = z.object({
                     offset: z.number(),
                     timestamp: z.number(),
                 })
+                .strict()
                 .optional(),
         })
         .strict(),

@@ -1,18 +1,26 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import {
-    foryouMomenstFeedDataHandler,
+    foryouMomentsFeedDataHandler,
     foryouPhotosFeedDataHandler,
     foryouVideosFeedDataHandler,
 } from "../../controller/feeds/foryou.controller";
+import methodHandler from "../../middleware/methodHandler";
+import { foryouSchema } from "../../schema/request.schema";
+import validator from "../../middleware/validateResource";
 
 export const foryouRouter = Router();
 
-foryouRouter.get("/photos", foryouPhotosFeedDataHandler);
+foryouRouter
+    .route("/photos")
+    .get(validator(foryouSchema), foryouPhotosFeedDataHandler)
+    .all(methodHandler);
 
-foryouRouter.get("/videos", foryouVideosFeedDataHandler);
+foryouRouter
+    .route("/videos")
+    .get(validator(foryouSchema), foryouVideosFeedDataHandler)
+    .all(methodHandler);
 
-foryouRouter.get("/moments", foryouMomenstFeedDataHandler);
-
-foryouRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
-    next({ message: "INVALID_ROUTE" });
-});
+foryouRouter
+    .route("/moments")
+    .get(validator(foryouSchema), foryouMomentsFeedDataHandler)
+    .all(methodHandler);

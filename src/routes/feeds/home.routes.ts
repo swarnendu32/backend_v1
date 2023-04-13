@@ -1,18 +1,26 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import {
     homeFeedDataHandler,
     homeFeedMemoriesDataHandler,
     homeFeedPostsDataHandler,
 } from "../../controller/feeds/home.controller";
+import methodHandler from "../../middleware/methodHandler";
+import validator from "../../middleware/validateResource";
+import { homeFeedSchema, homeSchema } from "../../schema/request.schema";
 
 export const homeRouter = Router();
 
-homeRouter.get("/", homeFeedDataHandler);
+homeRouter
+    .route("/")
+    .get(validator(homeSchema), homeFeedDataHandler)
+    .all(methodHandler);
 
-homeRouter.get("/posts", homeFeedPostsDataHandler);
+homeRouter
+    .route("/followingposts")
+    .get(validator(homeFeedSchema), homeFeedPostsDataHandler)
+    .all(methodHandler);
 
-homeRouter.get("/memories", homeFeedMemoriesDataHandler);
-
-homeRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
-    next({ message: "INVALID_ROUTE" });
-});
+homeRouter
+    .route("/followingmemories")
+    .get(validator(homeFeedSchema), homeFeedMemoriesDataHandler)
+    .all(methodHandler);

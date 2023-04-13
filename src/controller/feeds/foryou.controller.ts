@@ -1,16 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import ErrorCodes from "../../constants/ErrorCodes";
 import HttpStatusCodes from "../../constants/HttpStatusCodes";
 import {
     foryouMomentsFeedService,
     foryouPhotosFeedService,
     foryouVideosFeedService,
 } from "../../services/feeds/foryou.services";
-import { PageRequestBodyParams } from "../../types";
-import AppError from "../../util/appError";
 
 export const foryouPhotosFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
@@ -40,7 +37,7 @@ export const foryouPhotosFeedDataHandler = (
 };
 
 export const foryouVideosFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
@@ -70,7 +67,7 @@ export const foryouVideosFeedDataHandler = (
 };
 
 export const foryouMomentsFeedDataHandler = (
-    req: Request<{}, {}, PageRequestBodyParams>,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {

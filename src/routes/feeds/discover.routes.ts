@@ -1,21 +1,31 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import {
     discoverForYouFeedDataHandler,
     discoverNearByFeedDataHandler,
     discoverNewFeedDataHandler,
     discoverPopularFeedDataHandler,
 } from "../../controller/feeds/discover.controller";
+import methodHandler from "../../middleware/methodHandler";
+import { discoverSchema } from "../../schema/request.schema";
+import validator from "../../middleware/validateResource";
 
 export const discoverRouter = Router();
 
-discoverRouter.get("/foryou", discoverForYouFeedDataHandler);
+discoverRouter
+    .route("/foryou")
+    .get(validator(discoverSchema), discoverForYouFeedDataHandler)
+    .all(methodHandler);
 
-discoverRouter.get("/popular", discoverPopularFeedDataHandler);
+discoverRouter
+    .route("/popular")
+    .get(validator(discoverSchema), discoverPopularFeedDataHandler)
+    .all(methodHandler);
+discoverRouter
+    .route("/new")
+    .get(validator(discoverSchema), discoverNewFeedDataHandler)
+    .all(methodHandler);
 
-discoverRouter.get("/new", discoverNewFeedDataHandler);
-
-discoverRouter.get("/nearby", discoverNearByFeedDataHandler);
-
-discoverRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
-    next({ message: "INVALID_ROUTE" });
-});
+discoverRouter
+    .route("/nearby")
+    .get(validator(discoverSchema), discoverNearByFeedDataHandler)
+    .all(methodHandler);

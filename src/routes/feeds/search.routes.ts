@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import {
     searchAccountsEntityHandler,
     searchAudiosEntityHandler,
@@ -7,21 +7,38 @@ import {
     searchLocationsEntityHandler,
     searchPostsEntityHandler,
 } from "../../controller/feeds/search.controller";
+import methodHandler from "../../middleware/methodHandler";
+import validator from "../../middleware/validateResource";
+import { pageSearchSchema, searchSchema } from "../../schema/request.schema";
 
 export const searchRouter = Router();
 
-searchRouter.get("/", searchEntityHandler);
+searchRouter
+    .route("/")
+    .get(validator(searchSchema), searchEntityHandler)
+    .all(methodHandler);
 
-searchRouter.get("/posts", searchPostsEntityHandler);
+searchRouter
+    .route("/posts")
+    .get(validator(pageSearchSchema), searchPostsEntityHandler)
+    .all(methodHandler);
 
-searchRouter.get("/accounts", searchAccountsEntityHandler);
+searchRouter
+    .route("/accounts")
+    .get(validator(searchSchema), searchAccountsEntityHandler)
+    .all(methodHandler);
 
-searchRouter.get("/audios", searchAudiosEntityHandler);
+searchRouter
+    .route("/audios")
+    .get(validator(searchSchema), searchAudiosEntityHandler)
+    .all(methodHandler);
 
-searchRouter.get("/hashtags", searchHashtagsEntityHandler);
+searchRouter
+    .route("/hashtags")
+    .get(validator(searchSchema), searchHashtagsEntityHandler)
+    .all(methodHandler);
 
-searchRouter.get("/locations", searchLocationsEntityHandler);
-
-searchRouter.get("*", (req: Request, res: Response, next: NextFunction) => {
-    next({ message: "INVALID_ROUTE" });
-});
+searchRouter
+    .route("/locations")
+    .get(validator(searchSchema), searchLocationsEntityHandler)
+    .all(methodHandler);

@@ -1,19 +1,24 @@
+import ErrorCodes from "../../constants/ErrorCodes";
 import {
     generateAccountResponses,
+    generateAudioResponses,
+    generateHashTagLocationResponses,
     generatePostResponses,
     generateSearchResponses,
 } from "../../mock";
 import {
-    FeedResponseParams,
-    PaginatedPostSearchResponseBodyParams,
-    SearchRequestBodyParams,
+    AccountListSearchResponseBodyParams,
+    AppError,
+    AudioListSearchResponseBodyParams,
+    HashTagAndLocationListSearchResponseBodyParams,
+    HttpStatusCodes,
+    PostSearchResponseBodyParams,
     SearchResponseBodyParams,
-    SearchResultParams,
 } from "../../types";
 
 export function searchEntityService(
-    query: string
-): SearchResultParams | undefined {
+    queryString: string
+): SearchResponseBodyParams | undefined {
     try {
         const searchResults = generateSearchResponses(
             30,
@@ -24,26 +29,34 @@ export function searchEntityService(
             true
         );
         return {
-            query: query,
-            results: searchResults,
+            payload: searchResults,
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                },
+            },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function searchPostsEntityService(
-    length: number,
+    limit: number,
     offset: number,
     timestamp: number,
-    query: string
-): FeedResponseParams<SearchRequestBodyParams> | undefined {
+    queryString: string
+): PostSearchResponseBodyParams | undefined {
     try {
-        const postData = generatePostResponses(
-            length,
+        const postResult = generatePostResponses(
+            limit,
             undefined,
-            true,
-            true,
             true,
             undefined,
             undefined,
@@ -51,6 +64,7 @@ export function searchPostsEntityService(
             undefined,
             undefined,
             true,
+            undefined,
             true,
             true,
             true,
@@ -65,7 +79,7 @@ export function searchPostsEntityService(
             true,
             true
         );
-        const accountData = generateAccountResponses(
+        const accountResult = generateAccountResponses(
             3,
             true,
             undefined,
@@ -74,107 +88,153 @@ export function searchPostsEntityService(
             true,
             true,
             true,
-            true,
             true
         );
         return {
-            accountSuggestions: {
-                suggestions: accountData,
-                type: "foryou",
+            payload: {
+                postPage: { data: accountResult, hasMorePages: false },
+                postSuggestions: { suggestions: postResult, type: "moments" },
             },
-            list: postData,
             meta: {
-                hasMorePages: true,
-                length: length,
-                offset: offset,
-                timestamp: timestamp,
-                query: query,
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                    page: {
+                        offset: offset,
+                        limit: limit,
+                        timestamp: timestamp,
+                    },
+                },
             },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function searchAccountsEntityService(
-    query: string
-): SearchResultParams | undefined {
+    queryString: string
+): AccountListSearchResponseBodyParams | undefined {
     try {
-        const searchResults = generateSearchResponses(
+        const accountResults = generateAccountResponses(
             30,
             undefined,
             undefined,
             undefined,
             undefined,
-            true
+            undefined,
+            true,
+            true,
+            undefined
         );
         return {
-            query: query,
-            results: searchResults,
+            payload: accountResults,
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                },
+            },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function searchAudiosEntityService(
-    query: string
-): SearchResponseBodyParams {
-    const searchResults = generateSearchResponses(
-        30,
-        undefined,
-        undefined,
-        undefined,
-        true,
-        undefined
-    );
-    return {
-        data: {
-            query: query,
-            results: searchResults,
-        },
-        error: undefined,
-    };
-}
-
-export function searchHashtagEntityService(
-    query: string
-): SearchResultParams | undefined {
+    queryString: string
+): AudioListSearchResponseBodyParams {
     try {
-        const searchResults = generateSearchResponses(
+        const audioResults = generateAudioResponses(
             30,
             undefined,
-            true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
             undefined,
             undefined,
             undefined
         );
         return {
-            query: query,
-            results: searchResults,
+            payload: audioResults,
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                },
+            },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
+    }
+}
+
+export function searchHashtagEntityService(
+    queryString: string
+): HashTagAndLocationListSearchResponseBodyParams | undefined {
+    try {
+        const searchResults = generateHashTagLocationResponses();
+        return {
+            payload: searchResults,
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                },
+            },
+        };
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }
 
 export function searchLocationEntityService(
-    query: string
-): SearchResultParams | undefined {
+    queryString: string
+): HashTagAndLocationListSearchResponseBodyParams | undefined {
     try {
-        const searchResults = generateSearchResponses(
-            10,
-            undefined,
-            undefined,
-            true,
-            undefined,
-            undefined
-        );
+        const searchResults = generateHashTagLocationResponses();
         return {
-            query: query,
-            results: searchResults,
+            payload: searchResults,
+            meta: {
+                status: HttpStatusCodes.OK,
+                timestamp: Date.now(),
+                body: {
+                    queryString: queryString,
+                },
+            },
         };
-    } catch (e: unknown) {
-        throw e;
+    } catch (e: any) {
+        throw {
+            code: `${ErrorCodes.SERVER_ERROR}`,
+            message: "Internal Server Error",
+            cause: "Something went wrong",
+        } as AppError;
     }
 }

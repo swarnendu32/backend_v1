@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import ErrorCodes from "../constants/ErrorCodes";
-import { HttpStatusCodes, ResponseBodyParams } from "../types";
 
 const validator =
     (schema: z.AnyZodObject) =>
@@ -18,35 +17,21 @@ const validator =
             switch (errorOrigin) {
                 case "content-type":
                     error = {
-                        meta: {
-                            status: HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE,
-                            timestamp: Date.now(),
-                            body: req.body,
-                            params: req.params as any,
-                        },
-                        error: {
-                            code: `${ErrorCodes.INVALID_CONTENT_TYPE}`,
-                            message: "Unsupported Media Type",
-                            cause: "Invalid Content-type or Content-encoding",
-                        },
-                    } as ResponseBodyParams;
+                        code: `${ErrorCodes.INVALID_CONTENT_TYPE}`,
+                        message: "Unsupported Media Type",
+                        cause: "Invalid Content-type or Content-encoding",
+                        timestamp: Date.now(),
+                    };
                     break;
                 case "postId":
                 case "commentId":
                 case "replyId":
                     error = {
-                        meta: {
-                            status: HttpStatusCodes.NOT_FOUND,
-                            timestamp: Date.now(),
-                            body: req.body,
-                            params: req.params as any,
-                        },
-                        error: {
-                            code: `${ErrorCodes.RESOURCE_NOT_FOUND}`,
-                            message: "Not Found",
-                            cause: "No such resource found",
-                        },
-                    } as ResponseBodyParams;
+                        code: `${ErrorCodes.INAVLID_REQUEST_PARAMETER}`,
+                        message: "Bad Request",
+                        cause: "Invaild request parameter",
+                        timestamp: Date.now(),
+                    };
                     break;
                 case "queryString":
                 case "limit":
@@ -58,32 +43,18 @@ const validator =
                 case "description":
                 case "page":
                     error = {
-                        meta: {
-                            status: HttpStatusCodes.BAD_REQUEST,
-                            timestamp: Date.now(),
-                            body: req.body,
-                            params: req.params as any,
-                        },
-                        error: {
-                            code: `${ErrorCodes.INVALID_REQUEST_PAYLOAD}`,
-                            message: "Bad Request",
-                            cause: "Invalid request payload",
-                        },
-                    } as ResponseBodyParams;
+                        code: `${ErrorCodes.INVALID_REQUEST_PAYLOAD}`,
+                        message: "Bad Request",
+                        cause: "Invalid request payload",
+                        timestamp: Date.now(),
+                    };
                     break;
                 default:
                     error = {
-                        meta: {
-                            status: HttpStatusCodes.NOT_ACCEPTABLE,
-                            timestamp: Date.now(),
-                            body: req.body,
-                            params: req.params as any,
-                        },
-                        error: {
-                            code: ErrorCodes.UNACCEPTABLE,
-                            message: "Not Acceptable",
-                            reason: "Got unacceptable values",
-                        },
+                        code: ErrorCodes.REQUEST_UNACCEPTABLE,
+                        message: "Not Acceptable",
+                        reason: "Got unacceptable values",
+                        timestamp: Date.now(),
                     };
                     break;
             }
