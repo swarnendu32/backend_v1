@@ -174,7 +174,7 @@ returns a quick search results of popular search phases and entities(account, ha
 
 ###### URL
 
-/feed/search/entites/posts
+/feed/search/posts
 
 ###### PARAMS
 
