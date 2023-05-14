@@ -1,83 +1,47 @@
 export interface HashTag {
   _id: string;
   name: string;
-  uploadInfo: {
-    uploadedBy: string;
-    uploadedAt: number;
-  };
-  visits: {
-    date: number;
-    totalNoOfVisits: number;
-    allVisits: {
-      visitedBy: string;
-      entryAt: number;
-      exitAt: number;
+  uploadedAt: number;
+  useInfo: {
+    noOfPostUses: number;
+    noOfMemoryUses: number;
+    noOfCommentUses: number;
+    noOfReplyUses: number;
+    noOfMessageUses: number;
+    uses: {
+      date: number;
+      noOfPostUses: number;
+      allPosts: string[];
+      noOfMemoryUses: number;
+      allMemories: { accountId: string; memoryId: string }[];
+      noOfCommentUses: number;
+      allComments: { postId: string; commentId: string }[];
+      noOfReplyUses: number;
+      allReplies: { postId: string; commentId: string; replyId: string }[];
+      noOfMessageUses: number;
+      allMessages: { chatId: string; messageId: string }[];
     }[];
-  }[];
+  };
   searches: {
     date: number;
-    totalNoOfSearches: number;
-    allSearches: {
-      searchedBy: string;
-      searchedAt: number;
+    noOfSearches: number;
+    searchedBy: {
+      accountId: string;
+      noOfSearches: number;
+      lastSearchedAt: number;
+      searchedAt: number[];
     }[];
   }[];
-  uses: {
-    totalNoOfPostUses: number;
-    postUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
+  visits: {
+    date: number;
+    noOfVisits: number;
+    visitedBy: {
+      accountId: string;
+      noOfVisits: number;
+      lastVisitedAt: number;
+      visitedAt: number[];
     }[];
-    totalNoOfAccountUses: number;
-    accountUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-    totalNoOfCommentUses: number;
-    commentUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-    totalNoOfReplyUses: number;
-    replyUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-    totalNoOfMessageUses: number;
-    messageUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-    totalNoOfMemoryUses: number;
-    memoryUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-  };
+  }[];
 }
 
 export interface Location {
@@ -163,19 +127,16 @@ export interface Audio {
   };
   visits: {
     date: number;
-    totalNoOfVisits: number;
     allVisits: {
       visitedBy: string;
-      entryAt: number;
-      exitAt: number;
+      visitHistory: number[];
     }[];
   }[];
   searches: {
     date: number;
-    totalNoOfSearches: number;
     allSearches: {
-      searchedBy: string;
-      searchedAt: number;
+      seBy: string;
+      visitHistory: number[];
     }[];
   }[];
   uses: {
@@ -217,10 +178,7 @@ export interface Post {
     } | null;
   };
   lastUpdatedAt: number;
-  deleteInfo: {
-    deletedAt: number;
-    deletedBy: "author" | "admin";
-  } | null;
+  deletedAt: number;
   caption: string | null;
   location: string | null;
   likes: {
@@ -234,24 +192,7 @@ export interface Post {
     noOfViews: number;
     allViews: {
       viewedBy: string;
-      lastViewedAt: number;
-      totalNoOfViews: number;
-      viewHistory: number[];
-    }[];
-  };
-  shares: {
-    noOfShares: number;
-    allShares: {
-      sharedBy: string;
-      totalNoOfShares: number;
-      lastShareInfo: {
-        lastSharedTo: "external-app" | "chat" | "memory";
-        lastSharedAt: number;
-      };
-      shareHistory: {
-        sharedTo: "external-app" | "chat" | "memory";
-        sharedAt: number;
-      }[];
+      viewedAt: number;
     }[];
   };
   saves: {
@@ -259,9 +200,62 @@ export interface Post {
     allSaves: {
       savedBy: string;
       savedAt: number;
-      savedFolders: {
-        savedTo: string;
-        savedAt: number;
+    }[];
+  };
+  comments: {
+    id: string;
+    uploadInfo: {
+      uploadedAt: number;
+      uploadedBy: string;
+    };
+    deleteInfo: {
+      deletedAt: number;
+      deletedBy: "comment-author" | "post-author";
+    } | null;
+    content: string;
+    isPinned: boolean;
+    likes: {
+      totalNoOfLikes: number;
+      allLikes: { likedBy: string; likedAt: number }[];
+    };
+    replies: {
+      totalNoOfReplies: number;
+      allReplies: {
+        id: string;
+        uploadInfo: {
+          uploadedAt: number;
+          uploadedBy: string;
+        };
+        deleteInfo: {
+          deletedAt: number;
+          deletedBy: "reply-author" | "post-author";
+        } | null;
+        content: string;
+        likes: {
+          totalNoOfLikes: number;
+          allLikes: { likedBy: string; likedAt: number }[];
+        };
+      }[];
+    };
+  }[];
+  messageShares: {
+    noOfShares: number;
+    allShares: {
+      sharedBy: string;
+      shareHistory: {
+        sharedTo: string;
+        sharedAt: number;
+        messageId: string;
+      }[];
+    }[];
+  };
+  memoryShares: {
+    noOfShares: number;
+    allShares: {
+      sharedBy: string;
+      shareHistory: {
+        sharedAt: number;
+        memoryId: string;
       }[];
     }[];
   };
@@ -347,40 +341,283 @@ export interface Post {
     disableLinkSharing: boolean;
     disableChatSharing: boolean;
   };
-  comments: {
-    id: string;
-    uploadInfo: {
-      uploadedAt: number;
-      uploadedBy: string;
-    };
-    deleteInfo: {
-      deletedAt: number;
-      deletedBy: "comment-author" | "post-author" | "admin";
-    } | null;
-    content: string;
-    isPinned: boolean;
-    likes: {
-      totalNoOfLikes: number;
-      allLikes: { likedBy: string; likedAt: number }[];
-    };
-    replies: {
-      totalNoOfReplies: number;
-      allReplies: {
-        id: string;
-        uploadInfo: {
-          uploadedAt: number;
-          uploadedBy: string;
-        };
-        deleteInfo: {
-          deletedAt: number;
-          deletedBy: "comment-author" | "post-author" | "admin";
-        } | null;
-        content: string;
-        likes: {
-          totalNoOfLikes: number;
-          allLikes: { likedBy: string; likedAt: number }[];
-        };
+}
+
+export interface Account {
+  _id: string;
+  incomingVisits: {
+    date: number;
+    visitedBy: string;
+    noOfVisits: number;
+    lastVisitTimestamp: number;
+  }[];
+  incomingSearches: {
+    date: number;
+    searchedBy: string;
+    noOfSearches: number;
+    lastSearchedAt: number;
+  }[];
+  incomingUses: {
+    usedBy: string;
+    date: number;
+    lastUsedAt: number;
+    noOfPostUses: number;
+    noOfMemoryUse: number;
+    noOfAccountUses: number;
+    noOfCommentUses: number;
+    noOfReplyUses: number;
+    noOfMessageUses: number;
+  }[];
+  incomingShares: {
+    sharedBy: string;
+    date: number;
+    lastSharedAt: number;
+    noOfSharesByMessages: number;
+    noOfSharesByExtrenalApps: number;
+  };
+  outGoingAccountVisits: {
+    date: number;
+    visitedAccount: string;
+    noOfVisits: number;
+    lastVisitTimestamp: number;
+  }[];
+  outGoingAccountSearches: {
+    date: number;
+    searchedAccount: string;
+    noOfSearches: number;
+    lastSearchedAt: number;
+  }[];
+  outGoingAccountUses: {
+    usedAccount: string;
+    date: number;
+    lastUsedAt: number;
+    noOfPostUses: number;
+    noOfMemoryUse: number;
+    noOfAccountUses: number;
+    noOfCommentUses: number;
+    noOfReplyUses: number;
+    noOfMessageUses: number;
+  }[];
+  outGoingAccountShares: {
+    sharedAccount: string;
+    date: number;
+    lastSharedAt: number;
+    noOfSharesByMessages: number;
+    noOfSharesByExtrenalApps: number;
+  };
+  outGoingHashTagVisits: {
+    date: number;
+    visitedHashTag: string;
+    noOfVisits: number;
+    lastVisitTimestamp: number;
+  }[];
+  outGoingHashTagSearches: {
+    date: number;
+    searchedHashTag: string;
+    noOfSearches: number;
+    lastSearchedAt: number;
+  }[];
+  outGoingHashTagUses: {
+    usedHashTag: string;
+    date: number;
+    lastUsedAt: number;
+    noOfPostUses: number;
+    noOfMemoryUse: number;
+    noOfAccountUses: number;
+    noOfCommentUses: number;
+    noOfReplyUses: number;
+    noOfMessageUses: number;
+  }[];
+  outGoingHashTagShares: {
+    sharedHashTag: string;
+    date: number;
+    lastSharedAt: number;
+    noOfSharesByMessages: number;
+    noOfSharesByExtrenalApps: number;
+  };
+  outGoingLocationVisits: {
+    date: number;
+    visitedLocation: string;
+    noOfVisits: number;
+    lastVisitTimestamp: number;
+  }[];
+  outGoingLocationSearches: {
+    date: number;
+    searchedLocation: string;
+    noOfSearches: number;
+    lastSearchedAt: number;
+  }[];
+  outGoingLocationUses: {
+    usedLocation: string;
+    date: number;
+    lastUsedAt: number;
+    noOfPostUses: number;
+    noOfAccountUses: number;
+    noOfMemoryUse: number;
+  }[];
+  outGoingLocationShares: {
+    sharedLocation: string;
+    date: number;
+    lastSharedAt: number;
+    noOfSharesByMessages: number;
+    noOfSharesByExtrenalApps: number;
+  };
+  outGoingAudioVisits: {
+    date: number;
+    visitedAudio: string;
+    noOfVisits: number;
+    lastVisitTimestamp: number;
+  }[];
+  outGoingAudioSearches: {
+    date: number;
+    searchedAudio: string;
+    noOfSearches: number;
+    lastSearchedAt: number;
+  }[];
+  outGoingAudioUses: {
+    usedAudio: string;
+    date: number;
+    lastUsedAt: number;
+    noOfPostUses: number;
+    noOfMemoryUse: number;
+  }[];
+  outGoingAudioShares: {
+    sharedAudio: string;
+    date: number;
+    lastSharedAt: number;
+    noOfSharesByMessages: number;
+    noOfSharesByExtrenalApps: number;
+  };
+  followings: {
+    noOfFollowings: number;
+    allFollowings: {
+      accountId: string;
+      timestamp: number;
+    }[];
+  };
+  followers: {
+    noOfFollowers: number;
+    allFollowers: {
+      accountId: string;
+      timestamp: number;
+    }[];
+  };
+
+  repliedComments: {
+    noOfComments: number;
+    allReplies: {
+      repliedComment: string;
+      repliedAt: number;
+    }[];
+  };
+  likedPosts: {
+    noOfLikes: number;
+    allLikes: {
+      likedPost: string;
+      likedAt: number;
+    }[];
+  };
+  savedPosts: {
+    noOfSaves: number;
+    allSaves: {
+      savedPost: string;
+      savedAt: number;
+    }[];
+  };
+  viewedPosts: {
+    noOfViews: number;
+    allViews: {
+      viewedPost: string;
+      date: number;
+      lastViewedAt: number;
+      record: number[];
+    }[];
+  };
+  sharedPosts: {
+    noOfShares: number;
+    allShares: {
+      sharedPost: string;
+      date: number;
+      lastSharedAt: number;
+      noOfShares: number;
+      record: number[];
+    }[];
+  };
+  createdPosts: {
+    allPosts: {
+      postId: string;
+      createdAt: number;
+    }[];
+    noOfPosts: number;
+  };
+  createdFolders: {
+    publicFolders: {
+      _id: string;
+      name: string;
+      createdAt: number;
+      noOfPosts: number;
+      allPosts: {
+        postId: string;
+        addedAt: number;
       }[];
-    };
+    }[];
+    privateFolders: {
+      _id: string;
+      name: string;
+      createdAt: number;
+      noOfPosts: number;
+      allPosts: {
+        postId: string;
+        addedAt: number;
+      }[];
+    }[];
+  };
+  createdReplies: {
+    replyId: string;
+    commentId: string;
+    postId: string;
+    createdAt: number;
+  }[];
+  likedReplies: {
+    replyId: string;
+    commentId: string;
+    postId: string;
+    likedAt: number;
+  }[];
+  createdComments: {
+    commentId: string;
+    postId: string;
+    createdAt: number;
+  }[];
+  likedComments: {
+    commentId: string;
+    postId: string;
+    likedAt: number;
+  }[];
+  createdMessages: {
+    messageId: string;
+    chatId: string;
+    createdAt: number;
+  }[];
+  reactedMessages: {
+    messageId: string;
+    chatId: string;
+    reactedAt: number;
+    reaction: string;
+  };
+}
+
+export interface SearchPhase {
+  _id: string;
+  phase: string;
+  searches: {
+    date: number;
+    noOfSearches: number;
+    allSeaches: {
+      searchedBy: string;
+      noOfSearches: number;
+      lastSearchedAt: string;
+      searchHistory: number[];
+    }[];
   }[];
 }
