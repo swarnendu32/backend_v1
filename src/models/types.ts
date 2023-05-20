@@ -5,6 +5,7 @@ export interface HashTag {
   useInfo: {
     noOfPostUses: number;
     noOfMemoryUses: number;
+    noOfAccounts: number;
     noOfCommentUses: number;
     noOfReplyUses: number;
     noOfMessageUses: number;
@@ -14,6 +15,8 @@ export interface HashTag {
       allPosts: string[];
       noOfMemoryUses: number;
       allMemories: { accountId: string; memoryId: string }[];
+      noOfAccounts: number;
+      allAccounts: string[];
       noOfCommentUses: number;
       allComments: { postId: string; commentId: string }[];
       noOfReplyUses: number;
@@ -47,57 +50,38 @@ export interface HashTag {
 export interface Location {
   _id: string;
   name: string;
-  uploadInfo: {
-    uploadedBy: string;
-    uploadedAt: number;
-  };
-  mapUrl: string;
-  visits: {
-    date: number;
-    totalNoOfVisits: number;
-    allVisits: {
-      visitedBy: string;
-      entryAt: number;
-      exitAt: number;
+  uploadedAt: number;
+  useInfo: {
+    noOfPostUses: number;
+    noOfMemoryUses: number;
+    uses: {
+      date: number;
+      noOfPostUses: number;
+      allPosts: string[];
+      noOfMemoryUses: number;
+      allMemories: { accountId: string; memoryId: string }[];
     }[];
-  }[];
+  };
   searches: {
     date: number;
-    totalNoOfSearches: number;
-    allSearches: {
-      searchedBy: string;
-      searchedAt: number;
+    noOfSearches: number;
+    searchedBy: {
+      accountId: string;
+      noOfSearches: number;
+      lastSearchedAt: number;
+      searchedAt: number[];
     }[];
   }[];
-  uses: {
-    totalNoOfPostUses: number;
-    postUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
+  visits: {
+    date: number;
+    noOfVisits: number;
+    visitedBy: {
+      accountId: string;
+      noOfVisits: number;
+      lastVisitedAt: number;
+      visitedAt: number[];
     }[];
-    totalNoOfAccountUses: number;
-    accountUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-    totalNoOfMemoryUses: number;
-    memoryUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
-    }[];
-  };
+  }[];
 }
 
 export interface Audio {
@@ -125,38 +109,35 @@ export interface Audio {
       savedAt: number;
     }[];
   };
-  visits: {
-    date: number;
-    allVisits: {
-      visitedBy: string;
-      visitHistory: number[];
-    }[];
-  }[];
   searches: {
     date: number;
-    allSearches: {
-      seBy: string;
-      visitHistory: number[];
+    noOfSearches: number;
+    searchedBy: {
+      accountId: string;
+      noOfSearches: number;
+      lastSearchedAt: number;
+      searchedAt: number[];
     }[];
   }[];
-  uses: {
-    totalNoOfPostUses: number;
-    postUses: {
-      date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
+  visits: {
+    date: number;
+    noOfVisits: number;
+    visitedBy: {
+      accountId: string;
+      noOfVisits: number;
+      lastVisitedAt: number;
+      visitedAt: number[];
     }[];
-    totalNoOfMemoryUses: number;
-    memoryUses: {
+  }[];
+  useInfo: {
+    noOfPostUses: number;
+    noOfMemoryUses: number;
+    uses: {
       date: number;
-      totalNoOfUses: number;
-      allUses: {
-        usedBy: string;
-        usedAt: number;
-      }[];
+      noOfPostUses: number;
+      allPosts: string[];
+      noOfMemoryUses: number;
+      allMemories: { accountId: string; memoryId: string }[];
     }[];
   };
 }
@@ -613,11 +594,11 @@ export interface SearchPhase {
   searches: {
     date: number;
     noOfSearches: number;
-    allSeaches: {
-      searchedBy: string;
+    searchedBy: {
+      accountId: string;
       noOfSearches: number;
-      lastSearchedAt: string;
-      searchHistory: number[];
+      lastSearchedAt: number;
+      searchedAt: number[];
     }[];
   }[];
 }
