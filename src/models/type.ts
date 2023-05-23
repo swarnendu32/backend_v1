@@ -216,8 +216,6 @@ export interface Account {
   };
 }
 
-
-
 export interface Memory {
   _id: string;
   createdAt: number;
@@ -327,4 +325,18 @@ export interface Memory {
   deletedAt: number;
   removedAt: number;
   highlights: string[];
+}
+export interface SearchPhase {
+  _id: string;
+  phase: string;
+  searches: {
+    date: number;
+    noOfSearches: number;
+    searchedBy: {
+      accountId: string;
+      noOfSearches: number;
+      lastSearchedAt: number;
+      searchedAt: number[];
+    }[];
+  }[];
 }
