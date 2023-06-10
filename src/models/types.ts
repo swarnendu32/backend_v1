@@ -8,39 +8,27 @@ export interface HashTag {
     noOfMemoryUses: number;
     noOfCommentUses: number;
     noOfReplyUses: number;
-    noOfMessageUses: number;
-    allUses: {
-      date: number;
+  };
+  searches: {
+    searchedBy: string;
+    searchedAt: number;
+  }[];
+  visits: {
+    visitedBy: string;
+    visitedAt: number;
+  }[];
+  dailyStats: {
+    date: number;
+    uses: {
       noOfPostUses: number;
       noOfBioUses: number;
       noOfMemoryUses: number;
       noOfCommentUses: number;
       noOfReplyUses: number;
-      noOfMessageUses: number;
-    }[];
-  };
-  searches: {
-    allSearches: {
-      searchedBy: string;
-      searchedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      searchCount: number;
-      noOfSearches: number;
-    }[];
-  };
-  visits: {
-    allVisits: {
-      visitedBy: string;
-      visitedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      visitCount: number;
-      noOfVisits: number;
-    }[];
-  };
+    };
+    noOfVisits: number;
+    noOfSearches: number;
+  }[];
 }
 
 export interface Location {
@@ -50,42 +38,30 @@ export interface Location {
   uses: {
     noOfPostUses: number;
     noOfMemoryUses: number;
-    allUses: {
-      date: number;
-      noOfPostUses: number;
-      noOfMemoryUses: number;
-    }[];
   };
   searches: {
-    allSearches: {
-      searchedBy: string;
-      searchedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      searchCount: number;
-      noOfSearches: number;
-    }[];
-  };
+    searchedBy: string;
+    searchedAt: number;
+  }[];
   visits: {
-    allVisits: {
-      visitedBy: string;
-      visitedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      visitCount: number;
-      noOfVisits: number;
-    }[];
-  };
+    visitedBy: string;
+    visitedAt: number;
+  }[];
+  dailyStats: {
+    date: number;
+    uses: {
+      noOfPostUses: number;
+      noOfMemoryUses: number;
+    };
+    noOfVisits: number;
+    noOfSearches: number;
+  }[];
 }
 
 export interface Audio {
   _id: string;
-  uploadInfo: {
-    uploadedAt: number;
-    isUploadedManually: boolean;
-  };
+  uploadedAt: number;
+  isUploadedExternally: boolean;
   associatedAccount?: string;
   title: string;
   artist: string;
@@ -100,73 +76,42 @@ export interface Audio {
     from: number;
     to: number;
   };
-  saves: {
-    noOfSaves: number;
-    allSaves: {
-      savedBy: string;
-      savedAt: number;
-    }[];
-  };
-  shares: {
-    noOfShares: number;
-    allShares: {
-      sharedBy: string;
-      sharedAt: number;
-    }[];
-  };
-  useInfo: {
+  uses: {
     noOfPostUses: number;
     noOfMemoryUses: number;
+  };
+  saves: {
+    savedBy: string;
+    savedAt: number;
+  }[];
+  shares: {
+    sharedBy: string;
+    sharedAt: number;
+  }[];
+  searches: {
+    searchedBy: string;
+    searchedAt: number;
+  }[];
+  visits: {
+    visitedBy: string;
+    visitedAt: number;
+  }[];
+  dailyStats: {
+    date: number;
     uses: {
       noOfPostUses: number;
       noOfMemoryUses: number;
-      allUses: {
-        date: number;
-        noOfPostUses: number;
-        noOfMemoryUses: number;
-      }[];
     };
-  };
-  searches: {
-    allSearches: {
-      searchedBy: string;
-      searchedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      searchCount: number;
-      noOfSearches: number;
-    }[];
-  };
-  visits: {
-    allVisits: {
-      visitedBy: string;
-      visitedAt: number;
-    }[];
-    dailyStats: {
-      date: number;
-      visitCount: number;
-      noOfVisits: number;
-    }[];
-  };
+    noOfVisits: number;
+    noOfSearches: number;
+    noOfShares: number;
+  }[];
 }
 
 export interface Post {
   _id: string;
-  uploadInfo: {
-    uploadedBy: string;
-    uploadedAt: number;
-    uploadedFrom?: {
-      coord: {
-        latitude: number;
-        longitude: number;
-      };
-      city?: string;
-      country?: string;
-      isoCountryCode?: string;
-      name?: string;
-    };
-  };
+  uploadedBy: string;
+  uploadedAt: number;
   lastUpdatedAt: number;
   deletedAt?: number;
   caption?: {
@@ -176,7 +121,7 @@ export interface Post {
     keyWords?: string[];
     emojis?: string[];
   };
-  location?: string;
+  taggedLocation?: string;
   likes: {
     noOfLikes: number;
     allLikes: {
@@ -192,12 +137,9 @@ export interface Post {
     }[];
   };
   saves: {
-    noOfSaves: number;
-    allSaves: {
-      savedBy: string;
-      savedAt: number;
-    }[];
-  };
+    savedBy: string;
+    savedAt: number;
+  }[];
   shares: {
     noOfShares: number;
     allShares: {
@@ -208,8 +150,8 @@ export interface Post {
   circulations: {
     noOfCirculations: number;
     allCirculations: {
-      circulateddBy: string;
-      circulatedAt: number;
+      circulationsBy: string;
+      circulationsAt: number;
     }[];
   };
   comments: {
@@ -245,36 +187,42 @@ export interface Post {
       };
     }[];
   };
-  mentions?: string[];
-  contentInfo: {
+  taggedAccounts?: {
+    accountId: string;
+    taggedPhotoIndex?: number[];
+  }[];
+  mediaInfo: {
     photo?: {
-      variants: {
+      url: string;
+      width: number;
+      height: number;
+      preview: {
         url: string;
         width: number;
         height: number;
-        preview: {
-          url: string;
-          width: number;
-          height: number;
-        };
-      }[];
-      mentions?: {
-        accountId: string;
-        translateX: number;
-        translateY: number;
-      }[];
+      };
     };
+    album?: {
+      url: string;
+      width: number;
+      height: number;
+      preview: {
+        url: string;
+        width: number;
+        height: number;
+      };
+    }[];
     moment?: {
       variants: {
         url: string;
         width: number;
         height: number;
-        thumbnail: {
-          url: string;
-          width: number;
-          height: number;
-        };
       }[];
+      thumbnail: {
+        url: string;
+        width: number;
+        height: number;
+      };
       remixInfo?: {
         accountId: string;
         postId: string;
@@ -283,34 +231,17 @@ export interface Post {
       duration: number;
       isMuted: boolean;
     };
-    album?: {
-      variants: {
-        url: string;
-        width: number;
-        height: number;
-        preview: {
-          url: string;
-          width: number;
-          height: number;
-        };
-      }[];
-      mentions?: {
-        accountId: string;
-        translateX: number;
-        translateY: number;
-      }[];
-    }[];
     video?: {
       variants: {
         url: string;
         width: number;
         height: number;
-        thumbnail: {
-          url: string;
-          width: number;
-          height: number;
-        };
       }[];
+      thumbnail: {
+        url: string;
+        width: number;
+        height: number;
+      };
       duration: number;
       isMuted: boolean;
     };
@@ -318,13 +249,26 @@ export interface Post {
       audioId: string;
       usedSection: { from: number; to: number };
     };
-    filter?: string;
   };
   advancedOptions: {
     hideEngagementCount: boolean;
     disableComment: boolean;
     disableMemoryCirculation: boolean;
-    disableChatSharing: boolean;
-    enableRemixing?: boolean;
+    disableRemixing?: boolean;
   };
+  dailyStats: {
+    date: number;
+    views: {
+      noOfViewsReached: number;
+      totalNoOfViews: number;
+    };
+    shares: {
+      noOfSharesReached: number;
+      totalNoOfShares: number;
+    };
+    circulations: {
+      noOfCirculationsReached: number;
+      totalNoOfCirculations: number;
+    };
+  }[];
 }
