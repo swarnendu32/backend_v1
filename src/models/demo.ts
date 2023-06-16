@@ -1,5 +1,6 @@
 export interface Comment {
   _id: string;
+  postId: string;
   createdBy: string;
   createdAt: number;
   updatedAt?: number;
@@ -297,4 +298,48 @@ export interface MemoryFolders {
   createdBy: string;
   createdAt: number;
   noOfMemories: number;
+}
+
+export interface Message {
+  _id: string;
+  createdBy: string;
+  createdAt: number;
+  deletedAt?: number;
+  repliedTo?: string;
+  chatId: string;
+  text?: string;
+  attachment?: {
+    type: "media" | "account" | "audio" | "after-effect" | "post";
+    media?: {
+      type: "photo" | "video";
+      url: string;
+      width: number;
+      height: number;
+      thumbnail: {
+        url: string;
+        width: number;
+        height: number;
+      };
+    }[];
+    accountId?: string;
+    audioId?: string;
+    afterEffectId?: string;
+    postId?: string;
+  };
+}
+
+export interface MessageLikes {
+  _id: string;
+  messageId: string;
+  likedBy: string;
+  likedAt: number;
+}
+
+export interface MessageStatus {
+  _id: string;
+  messageId: string;
+  accountId: string;
+  status: "delivered" | "read";
+  deliveredAt: number;
+  readAt?: number;
 }
