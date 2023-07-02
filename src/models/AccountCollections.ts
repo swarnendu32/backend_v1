@@ -1,130 +1,161 @@
+import {
+  GeoLocationInfo,
+  Link,
+  NotificationInfo,
+  PersonalInfo,
+  PrivacySettings,
+  SecurityInfo,
+  TextContent,
+} from "./Utility";
+
 export interface Account {
+  /**
+   * The unique identifier for the account document.
+   * @type {string}
+   */
   _id: string;
+
+  /**
+   * The timestamp indicating when the account was created.
+   * @type {number}
+   */
   createdAt: number;
-  broadcastTopic: string;
-  usernameInfo: {
-    username: string;
-    updatedAt: number;
-  };
-  fullnameInfo: {
-    fullname: string;
-    updatedAt: number;
-  };
-  profilePictureInfo: {
-    profilePicture: {
-      url: string;
-      width: number;
-      height: number;
-    };
-    updatedAt: number;
-  };
-  bioInfo?: {
-    text: string;
-    updatedAt: number;
-  };
+
+  /**
+   * The geolocation information where the account was created.
+   * @type {GeoLocationInfo}
+   */
+  createdFrom: GeoLocationInfo;
+
+  /**
+   * The username of the user.
+   * @type {string}
+   */
+  username: string;
+
+  /**
+   * The full name of the user.
+   * @type {string}
+   */
+  fullname: string;
+
+  /**
+   * Optional URL of the user's profile picture.
+   * @type {string | undefined}
+   */
+  profilePictureUrl?: string;
+
+  /**
+   * Optional bio information for the user.
+   * @type {Bio | undefined}
+   */
+  bio?: TextContent;
+
+  /**
+   * Optional array of external links associated with the user.
+   * @type {Link[] | undefined}
+   */
+  links?: Link[];
+
+  /**
+   * The number of followers the user has.
+   * @type {number}
+   */
   noOfFollowers: number;
+
+  /**
+   * The number of posts the user has made.
+   * @type {number}
+   */
   noOfPosts: number;
+
+  /**
+   * The number of users the user is following.
+   * @type {number}
+   */
   noOfFollowings: number;
+
+  /**
+   * A flag indicating if the user's account is private.
+   * @type {boolean}
+   */
+  isPrivate: boolean;
+}
+
+export interface AccountDetails {
+  _id: string;
+  accountId: string;
   noOfFollowRequests: number;
   noOfShares: number;
   noOfSearches: number;
   noOfVisits: number;
-  links: {
-    _id: string;
-    title: string;
-    url: string;
-  }[];
-  personalInfo: {
-    dateOfBirth?: number;
-    gender?: string;
-    contactInfo: {
-      type: "phone-number" | "email-address";
-      updatedAt: number;
-      phoneNumber?: boolean;
-      emailAddress?: string;
-    };
-  };
-  securityInfo: {
-    passwordInfo: {
-      passwordHash: string;
-      updatedAt: number;
-    };
-    twoStepAuthInfo: {
-      enabled: boolean;
-      type: "phone-number" | "email-address";
-      updatedAt: number;
-      phoneNumber?: boolean;
-      emailAddress?: string;
-    };
-  };
-  privacyInfo: {
-    accountStatusInfo: {
-      accountStatus: boolean;
-      updatedAt: number;
-    };
-    chatInfo: {
-      enabled: boolean;
-    };
-    restrictedKeywords: string[];
-  };
-  notficationInfo: {
-    notificationTopic: string;
-    /**when someone menions this  account*/
-    mentions: "all" | "following" | "off";
-    /**when someone likes a post from this account */
-    postLike: "all" | "following" | "off";
-    /**when someone comments on a post from this account */
-    postComment: "all" | "following" | "off";
-    /**when someone tag this accountin a post */
-    postTags: "all" | "following" | "off";
-    /**when someone likes a post this account is tagged in */
-    taggedPostLike: "all" | "following" | "off";
-    /**when someone comments on a post this account is tagged in */
-    taggedPostComment: "all" | "following" | "off";
-    /**when someone likes a comment from this account */
-    commentLike: "all" | "following" | "off";
-    /**when someone replies to a comment from this account */
-    commentReplies: "all" | "following" | "off";
-    /**when someone react to a memory from this account */
-    memoryReactions: "all" | "following" | "off";
-    /**when someone replies to a memory from this account */
-    memoryReplies: "all" | "following" | "off";
-    /**when someone interacts to a sticker from this account */
-    stickerInterctions: "all" | "following" | "off";
-    /**when someone creates a memory or post using audio associated to this account */
-    orginaAudio: "on" | "off";
-    /**when someone remixes a moment from this account */
-    remixes: "on" | "off";
-    /**when a message request comes from  an individual or group*/
-    messageRequests: "on" | "off";
-    /**when message comes from an individual or group */
-    messages: "on" | "off";
-    /**when follow request comes to this account */
-    followRequest: "on" | "off";
-    /**when someone accepts follow requests from this account */
-    followRequestAccepted: "on" | "off";
-    /**when someone starts following this account */
-    startedFollow: "on" | "off";
-  };
+  broadcastTopic: string;
+  personalInfo: PersonalInfo;
+  securityInfo: SecurityInfo;
+  notificationInfo: NotificationInfo;
+  privacySettings: PrivacySettings;
+  noOfBlockedAccounts: number;
+  noOfFavoriteAccounts: number;
+  noOfMutedAccounts: number;
+  noOfSavedAudios: number;
 }
 
-export interface AccountStatus {
+export interface AccountActivity {
+  _id: string;
+  accountId: string;
+  timestamp: number;
+  key: string;
+  value?: string;
+}
+
+export interface FollowedAccount {
   _id: string;
   accountId: string;
   followedBy: string;
-  status: "requested" | "followed" | "blocked";
-  isFavourite?: boolean;
-  muteInfo?: {
-    post: boolean;
-    memory: boolean;
-  };
-  notification?: {
-    photo: boolean;
-    moment: boolean;
-    video: boolean;
-    memory: boolean;
-  };
-  timestamp: number;
+  followedAt: number;
+  notification: boolean;
+}
+
+export interface BlockedAccount {
+  _id: string;
+  accountId: string;
+  blockedBy: string;
+  blockedAt: number;
+}
+
+export interface RequestedAccount {
+  _id: string;
+  accountId: string;
+  requestedBy: string;
+  requestedAt: number;
+}
+
+export interface FavouriteAccount {
+  _id: string;
+  accountId: string;
+  addedBy: string;
+  addedAt: number;
+}
+
+export interface MutedAccount {
+  _id: string;
+  accountId: string;
+  mutedBy: string;
+  mutedAt: number;
+}
+
+export interface MemoryHiddenAccount {
+  _id: string;
+  accountId: string;
+  hiddenBy: string;
+  hiddenAt: number;
+}
+
+export interface CommentBlockedAccount {
+  _id: string;
+  accountId: string;
+  blockedBy: string;
+  blockedAt: number;
 }
 
 export interface AccountVisit {
@@ -134,9 +165,21 @@ export interface AccountVisit {
   visitedAt: number;
 }
 
-export interface AccountSearch {
+export interface AccountSessions {
   _id: string;
   accountId: string;
-  searchedBy: string;
-  searchedAt: number;
+  timestamp: number;
+  ipAddress: string;
+  clientName: string;
+  clientType: string;
+  location: GeoLocationInfo;
+}
+
+export interface VisitedPlaces {
+  _id: string;
+  accountId: string;
+  placeId: string;
+  timestamp: number;
+  latitude: number;
+  longitude: number;
 }

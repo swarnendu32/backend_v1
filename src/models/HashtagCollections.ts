@@ -19,10 +19,3 @@ export interface HashTagVisit {
   visitedBy: string;
   visitedAt: number;
 }
-
-export interface HashtagSearch {
-  _id: string;
-  hashtagId: string;
-  searchedBy: string;
-  searchedAt: number;
-}

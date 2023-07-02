@@ -1,3 +1,5 @@
+import { Photo, TextContent, Video } from "./Utility";
+
 export interface Message {
   _id: string;
   createdBy: string;
@@ -5,20 +7,14 @@ export interface Message {
   deletedAt?: number;
   repliedTo?: string;
   chatId: string;
-  text?: string;
-  removedBy: string[];
+  text?: TextContent;
+  hideFrom: string[];
+  noOfReactions: number;
   attachment?: {
     type: "media" | "account" | "audio" | "after-effect" | "post";
     media?: {
       type: "photo" | "video";
-      url: string;
-      width: number;
-      height: number;
-      thumbnail: {
-        url: string;
-        width: number;
-        height: number;
-      };
+      data: Photo | Video;
     }[];
     accountId?: string;
     audioId?: string;
@@ -28,30 +24,19 @@ export interface Message {
   };
 }
 
-export interface MessageLikes {
+export interface MessageReaction {
   _id: string;
   messageId: string;
-  likedBy: string;
-  likedAt: number;
-}
-
-export interface MessageDeliveries {
-  _id: string;
-  messageId: string;
-  deliveredTo: string;
-  deliveredAt: number;
-  readAt?: number;
+  reactedBy: string;
+  reactedAt: number;
+  reaction: string;
 }
 
 export interface ChatThread {
   _id: string;
   name?: string;
-  poster?: {
-    url: string;
-    width: number;
-    height: number;
-  };
-  type: "individual" | "group";
+  posterUrl?: string;
+  type: "oneToOne" | "group";
   createdAt: number;
   noOfActiveMembers: number;
   noOfMessages: number;
@@ -61,7 +46,10 @@ export interface ChatThreadMembers {
   _id: string;
   accountId: string;
   chatId: string;
-  isMuted?: boolean;
-  status: "accepted" | "rejected" | "pending";
+  status: "pending" | "active" | "rejected" | "left";
   timestamp: number;
+  isAdmin?: boolean;
+  isMuted?: boolean;
+  lastDeletedAt?: number;
+  lastActiveAt?: number;
 }

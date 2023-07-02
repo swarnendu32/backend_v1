@@ -77,7 +77,7 @@ export interface Memory {
     zIndex: number;
   } & TransformParams;
   noOfViews: number;
-  noOfLikes: number;
+  noOfReactions: number;
   noOfReplies: number;
   noOfShares: number;
   noOfCirculations: number;
@@ -85,9 +85,11 @@ export interface Memory {
     highlightId: string;
     timestamp: number;
   }[];
-  userCameraTool?: "boomarang" | "layout";
+  usedCameraTool?: "boomarang" | "layout";
   advancedOptions: {
-    disableReply: boolean;
+    replySetting: "disabled" | "following" | "all";
+    disableCirculation: boolean;
+    disableSharing: boolean;
   };
 }
 
@@ -121,16 +123,13 @@ export interface MemoryStickerInteraction {
   interactedAt: number;
   stickerType: "poll" | "star-rating";
   star?: number;
-  options?: {
-    _id: string;
-    text: string;
-  };
+  option?: string;
 }
 
 export interface HighLight {
   _id: string;
   name: string;
-  poster?: Photo;
+  posterUrl?: string;
   createdBy: string;
   createdAt: number;
   noOfMemories: number;

@@ -1,13 +1,31 @@
 export interface Location {
   _id: string;
-  name: string;
   createdAt: number;
+  placeId: string;
+  license: string;
+  osmType: string;
+  osmId: string;
+  latitude: number;
+  langitude: number;
+  type: string;
+  category: string;
+  addressType: string;
+  formattedAddress: string;
+  name: string;
+  importance: number;
+  placeRank: number;
+  boundingBox: number[];
+  addressComponents: {
+    type: string;
+    name: string;
+  }[];
+  noOfSearches: number;
+  noOfVisits: number;
+  noOfShares: number;
   useCounts: {
     post: number;
     memory: number;
   };
-  noOfVisits: number;
-  noOfSearches: number;
 }
 
 export interface LocationVisit {
@@ -15,11 +33,4 @@ export interface LocationVisit {
   locationId: string;
   visitedBy: string;
   visitedAt: number;
-}
-
-export interface LocationSearch {
-  _id: string;
-  locationId: string;
-  searchedBy: string;
-  searchedAt: number;
 }

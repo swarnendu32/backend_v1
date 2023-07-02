@@ -6,9 +6,9 @@ export interface Audio {
   type: "original" | "song";
   uploadedBy: "admin" | "user";
   associatedAccountId?: string;
-  title?: string;
+  title: string;
   artist?: string;
-  poster?: string;
+  posterUrl?: string;
   preview?: {
     url: string;
     start: number;
@@ -38,11 +38,4 @@ export interface AudioVisit {
   audioId: string;
   visitedBy: string;
   visitedAt: number;
-}
-
-export interface AudioSearch {
-  _id: string;
-  audioId: string;
-  searchedBy: string;
-  searchedAt: number;
 }

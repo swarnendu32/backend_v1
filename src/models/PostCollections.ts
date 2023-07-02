@@ -1,8 +1,8 @@
-import { Photo, Video } from "./Utility";
+import { GeoLocationInfo, Photo, TextContent, Video } from "./Utility";
 
 type PhotoPostContent = {
-  thumbnail: Photo;
-  accountTags: {
+  thumbnailUrl: string;
+  accountTags?: {
     accountId: string;
     coordinates: { x: number; y: number };
   }[];
@@ -11,13 +11,12 @@ type PhotoPostContent = {
 
 type VideoPostContent = {
   videoType: "moment" | "clip";
-  accountTags: string[];
+  accountTags?: string[];
 } & Video;
 
 type PostContent = {
-  contentType: "photo" | "video";
-  photos?: PhotoPostContent[];
-  video?: VideoPostContent;
+  type: "photo" | "video";
+  data: PhotoPostContent[] | VideoPostContent;
 };
 
 export interface Post {
@@ -25,14 +24,17 @@ export interface Post {
   createdBy: string;
   createdAt: number;
   updatedAt?: number;
-  deletedAt?: number;
   isPinned: boolean;
+  createdFrom?: GeoLocationInfo;
   addedTo?: {
     folderId: string;
     timestamp: number;
   }[];
-  caption?: string;
-  taggedLocation?: string;
+  caption?: TextContent;
+  taggedLocation?: {
+    name: string;
+    id: string;
+  };
   noOfLikes: number;
   noOfViews: number;
   noOfSaves: number;
@@ -42,8 +44,9 @@ export interface Post {
   content: PostContent;
   advancedOptions: {
     hideEngagementCount: boolean;
-    disableComment: boolean;
-    disableMemoryCirculation: boolean;
+    commentSetting: "disabled" | "following" | "all";
+    disableCirculation: boolean;
+    disableSharing: boolean;
   };
 }
 
@@ -55,10 +58,12 @@ export interface Comment {
   createdAt: number;
   updatedAt?: number;
   deletedAt?: number;
-  text: string;
+  isApproved: boolean;
+  text: TextContent;
   repliedTo?: string;
   noOfReplies: number;
   noOfLikes: number;
+  sentimentScore: number;
 }
 
 export interface CommentLike {
@@ -80,10 +85,6 @@ export interface PostSave {
   postId: string;
   savedBy: string;
   savedAt: number;
-  savedTo: {
-    collectionId: string;
-    timestamp: number;
-  }[];
 }
 
 export interface PostView {
@@ -93,20 +94,12 @@ export interface PostView {
   viewedAt: number;
 }
 
-export interface BookmarkCollection {
-  _id: string;
-  name: string;
-  createdBy: string;
-  createdAt: number;
-  noOfPosts: number;
-}
-
 export interface PostFolder {
   _id: string;
   name: string;
   createdBy: string;
   createdAt: number;
   noOfPosts: number;
-  poster?: Photo;
+  posterUrl?: string;
   selectedThubnailPostId?: string;
 }
