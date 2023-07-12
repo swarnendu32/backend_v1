@@ -1,4 +1,4 @@
-import { Photo, TextContent, Video } from "./Utility";
+import { Photo, TextContent, Video } from "./util.type";
 
 export interface Message {
   _id: string;

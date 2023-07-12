@@ -1,6 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export interface Location {
-  _id: string;
-  createdAt: number;
+  createdAt: Date;
   placeId: string;
   license: string;
   osmType: string;
@@ -19,18 +20,17 @@ export interface Location {
     type: string;
     name: string;
   }[];
-  noOfSearches: number;
-  noOfVisits: number;
-  noOfShares: number;
-  useCounts: {
-    post: number;
-    memory: number;
+  meta: {
+    noOfVisits: number;
+    noOfSearches: number;
+    noOfShares: number;
+    noOfPostUse: number;
+    noOfMemoryUse: number;
   };
 }
 
 export interface LocationVisit {
-  _id: string;
-  locationId: string;
-  visitedBy: string;
-  visitedAt: number;
+  locationId: ObjectId;
+  visitedBy: ObjectId;
+  visitedAt: Date;
 }

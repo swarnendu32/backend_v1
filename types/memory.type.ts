@@ -1,4 +1,4 @@
-import { Photo, Video } from "./Utility";
+import { Photo, Video } from "./util.type";
 
 type TransformParams = {
   scale: number;

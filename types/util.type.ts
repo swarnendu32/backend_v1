@@ -91,8 +91,7 @@ export type Link = {
 
 export type ContactInfo = {
   type: "phone-number" | "email-address";
-  phoneNumber?: string;
-  emailAddress?: string;
+  value: string;
 };
 
 export type TwoStepAuthenticationInfo = {
@@ -112,7 +111,7 @@ export type PersonalInfo = {
   contactInfo: ContactInfo;
 };
 
-export type NotificationInfo = {
+export type NotificationSettings = {
   broadcastTopic: string;
   mentions: "all" | "following" | "off";
   postLike: "all" | "following" | "off";
@@ -138,19 +137,7 @@ export type PrivacySettings = {
   allowMentions: "everyone" | "following" | "none";
   allowTags: "everyone" | "following" | "none";
   customOffensiveKeywords: string[];
-  chatSettings: {
-    messageRequests: {
-      others: boolean;
-      following: boolean;
-      contacts: boolean;
-    };
-    groupInvitations: {
-      others: boolean;
-      following: boolean;
-      contacts: boolean;
-    };
-    hideOffensiveMessageRequests: boolean;
-  };
+  chatSettings: ChatSettings;
   commentSettings: {
     hideOffensiveComments: boolean;
     noOfBlockedAccounts: number;
@@ -158,8 +145,35 @@ export type PrivacySettings = {
   memorySettings: {
     noOfHiddenAccounts: number;
   };
-  suggestionSettings: {
-    noOfNotInterestedAccounts: number;
-    customSensetiveKeywords: string[];
-  };
 };
+
+export type MessageRequestSettings = {
+  others: boolean;
+  following: boolean;
+  contacts: boolean;
+};
+
+export type ChatSettings = {
+  messageRequests: MessageRequestSettings;
+  groupInvitations: MessageRequestSettings;
+  hideOffensiveMessageRequests: boolean;
+};
+
+export type SuggestionSettings = {
+  noOfNotInterestedAccounts: number;
+  customSensetiveKeywords: string[];
+};
+
+export interface Reports {
+  _id: string;
+  reportedBy: string;
+  reportedAt: number;
+  reportedOn: "post" | "comment" | "memory" | "account";
+  reportedAccountId?: string;
+  reportedPostId?: string;
+  reportedCommentId?: string;
+  reportedMemoryId?: string;
+  category: string;
+  subCategory?: string;
+  description?: string;
+}

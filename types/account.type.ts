@@ -1,25 +1,21 @@
+import { ObjectId } from "mongodb";
 import {
   GeoLocationInfo,
   Link,
-  NotificationInfo,
+  NotificationSettings,
   PersonalInfo,
   PrivacySettings,
   SecurityInfo,
+  SuggestionSettings,
   TextContent,
-} from "./Utility";
+} from "./util.type";
 
 export interface Account {
-  /**
-   * The unique identifier for the account document.
-   * @type {string}
-   */
-  _id: string;
-
   /**
    * The timestamp indicating when the account was created.
    * @type {number}
    */
-  createdAt: number;
+  createdAt: Date;
 
   /**
    * The geolocation information where the account was created.
@@ -80,106 +76,101 @@ export interface Account {
    * @type {boolean}
    */
   isPrivate: boolean;
+  broadcastTopic: string;
+  privacySettings: PrivacySettings;
+  deletedAt?: Date;
+  lastDeActivatedAt?: Date;
 }
 
 export interface AccountDetails {
-  _id: string;
-  accountId: string;
-  noOfFollowRequests: number;
-  noOfShares: number;
-  noOfSearches: number;
-  noOfVisits: number;
-  broadcastTopic: string;
-  personalInfo: PersonalInfo;
-  securityInfo: SecurityInfo;
-  notificationInfo: NotificationInfo;
-  privacySettings: PrivacySettings;
+  createdAt: Date;
+  accountId: ObjectId;
   noOfBlockedAccounts: number;
   noOfFavoriteAccounts: number;
   noOfMutedAccounts: number;
   noOfSavedAudios: number;
+  personalInfo: PersonalInfo;
+  securityInfo: SecurityInfo;
+  notificationInfo: NotificationSettings;
+  suggestionSettings: SuggestionSettings;
+  meta: {
+    noOfFollowRequests: number;
+    noOfShares: number;
+    noOfSearches: number;
+    noOfVisits: number;
+  };
 }
 
 export interface AccountActivity {
-  _id: string;
-  accountId: string;
-  timestamp: number;
-  key: string;
-  value?: string;
+  accountId: ObjectId;
+  timestamp: Date;
+  activity: string;
 }
 
-export interface FollowedAccount {
-  _id: string;
-  accountId: string;
-  followedBy: string;
-  followedAt: number;
-  notification: boolean;
+export interface AccountFollower {
+  accountId: ObjectId;
+  followedBy: ObjectId;
+  followedAt: Date;
+  notify: boolean;
 }
 
-export interface BlockedAccount {
-  _id: string;
-  accountId: string;
-  blockedBy: string;
-  blockedAt: number;
+export interface AccountBlock {
+  accountId: ObjectId;
+  blockedBy: ObjectId;
+  blockedAt: Date;
 }
 
-export interface RequestedAccount {
-  _id: string;
-  accountId: string;
-  requestedBy: string;
-  requestedAt: number;
+export interface AccountFollowRequest {
+  accountId: ObjectId;
+  requestedBy: ObjectId;
+  requestedAt: Date;
 }
 
-export interface FavouriteAccount {
-  _id: string;
-  accountId: string;
-  addedBy: string;
-  addedAt: number;
+export interface AccountFavourite {
+  accountId: ObjectId;
+  addedBy: ObjectId;
+  addedAt: Date;
 }
 
-export interface MutedAccount {
-  _id: string;
-  accountId: string;
-  mutedBy: string;
-  mutedAt: number;
+export interface AccountMute {
+  accountId: ObjectId;
+  mutedBy: ObjectId;
+  mutedAt: Date;
 }
 
 export interface MemoryHiddenAccount {
-  _id: string;
-  accountId: string;
-  hiddenBy: string;
-  hiddenAt: number;
+  accountId: ObjectId;
+  hiddenBy: ObjectId;
+  hiddenAt: Date;
 }
 
 export interface CommentBlockedAccount {
-  _id: string;
-  accountId: string;
-  blockedBy: string;
-  blockedAt: number;
+  accountId: ObjectId;
+  blockedBy: ObjectId;
+  blockedAt: Date;
 }
 
 export interface AccountVisit {
-  _id: string;
-  accountId: string;
-  visitedBy: string;
-  visitedAt: number;
+  accountId: ObjectId;
+  visitedBy: ObjectId;
+  visitedAt: Date;
 }
 
 export interface AccountSessions {
-  _id: string;
-  accountId: string;
-  timestamp: number;
+  accountId: ObjectId;
+  timestamp: Date;
   ipAddress: string;
   clientName: string;
   clientType: string;
   location: GeoLocationInfo;
+  hashedAuthToken: string;
+  hashedRefreshToken: string;
 }
 
 export interface VisitedPlaces {
-  _id: string;
-  accountId: string;
-  placeId: string;
-  timestamp: number;
+  accountId: ObjectId;
+  placeId: ObjectId;
+  timestamp: Date;
   latitude: number;
   longitude: number;
 }
