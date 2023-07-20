@@ -1,11 +1,20 @@
+import { NextFunction, Request, Response } from "express";
+import { HashTagAndLocationUrlParams } from "../../types";
+
 /**
  * @name getLocationDetails
- * @url /entities/hashtags/{name}
+ * @url /entities/locations/{name}
  * @method GET
  * @param HashTagAndLocationUrlParams
  * @response ResponseBodyParams<LocationRouteResponseParams, HashTagAndLocationUrlParams>
  * @description get the details of the target location
  */
+
+export const getLocationDetailsHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
 
 /**
  * @name getLocationAllPosts
@@ -16,6 +25,12 @@
  * @description get all post paginations
  */
 
+export const getLocationAllPostsHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
+
 /**
  * @name getLocationPhotoPosts
  * @url /entities/locations/{name}/posts/photos
@@ -24,6 +39,12 @@
  * @response ResponseBodyParams<PostPageResponseParams, HashTagAndLocationUrlParams>
  * @description get photo post paginations
  */
+
+export const getLocationPhotosHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
 
 /**
  * @name getLocationVideoPosts
@@ -34,6 +55,12 @@
  * @description get video post paginations
  */
 
+export const getLocationVideosHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
+
 /**
  * @name getLocationMomentsPosts
  * @url /entities/locations/{name}/posts/moments
@@ -43,6 +70,12 @@
  * @description get moments post paginations
  */
 
+export const getLocationMomentsHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
+
 /**
  * @name getLocationTaggedAccounts
  * @url /entities/locations/{name}/accounts
@@ -51,3 +84,9 @@
  * @response ResponseBodyParams<AccountPageResponseParams, HashTagAndLocationUrlParams>
  * @description get tagged accounts paginations
  */
+
+export const getLocationTaggedAccountsHandler = (
+    req: Request<HashTagAndLocationUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};

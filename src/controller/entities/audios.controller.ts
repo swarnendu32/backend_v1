@@ -1,3 +1,6 @@
+import { NextFunction, Request, Response } from "express";
+import { AudioUrlParams } from "../../types";
+
 /**
  * @name getAudioDetails
  * @url /entities/audio/{audio-id}
@@ -6,6 +9,12 @@
  * @response ResponseBodyParams<AudioRouteResponseParams, AudioUrlParams>
  * @description get the details of the target audio
  */
+
+export const getAudioDetailsHandler = (
+    req: Request<AudioUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
 
 /**
  * @name getAudioPhotoPosts
@@ -16,6 +25,12 @@
  * @description get photo post paginations
  */
 
+export const getAudioPhotosHandler = (
+    req: Request<AudioUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
+
 /**
  * @name getAudioMomentsPosts
  * @url /entities/audios/{audio-id}/posts/moments
@@ -24,6 +39,12 @@
  * @response ResponseBodyParams<PostPageResponseParams, AudioUrlParams>
  * @description get moments post paginations
  */
+
+export const getAudioMomentsHandler = (
+    req: Request<AudioUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};
 
 /**
  * @name audioSave
@@ -34,3 +55,9 @@
  * @response ResponseBodyParams<undefined, AudioUrlParams, BooleanRequestBodyParams>
  * @description save or unsave the target audio
  */
+
+export const getSaveAudioHandler = (
+    req: Request<AudioUrlParams>,
+    res: Response,
+    next: NextFunction
+) => {};

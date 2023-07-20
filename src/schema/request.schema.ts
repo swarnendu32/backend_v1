@@ -362,3 +362,23 @@ export const getPostSchema = z.object({
     }),
     body: z.object({}).strict(),
 });
+
+export const getAudioSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    params: z.object({
+        audioId: z.string(),
+    }),
+    body: z.object({}).strict(),
+});
+
+export const getHashTagAndLocationSchema = z.object({
+    header: z.object({
+        "content-type": z.literal("application/json"),
+    }),
+    params: z.object({
+        name: z.string(),
+    }),
+    body: z.object({}).strict(),
+});
