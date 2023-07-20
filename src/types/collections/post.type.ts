@@ -1,16 +1,18 @@
 import { ObjectId } from "mongodb";
-import { GeoLocationInfo, Photo, TextContent, Video } from "./util.type";
+import { GeoLocationInfo, Photo, Video } from "../util.type";
 
 type PhotoPostContent = {
-  thumbnailUrl: string;
-  backgroundAudioUrl: string;
+  thumbnail: Photo;
+  backgroundAudioUrl?: string;
 } & Photo;
 
 type VideoPostContent = {
   videoType: "moment" | "clip";
+  isMuted: boolean;
+  thumbnail: Photo;
 } & Video;
 
-type PostContent = {
+export type PostContent = {
   type: "photo" | "video";
   data: PhotoPostContent[] | VideoPostContent;
 };
@@ -22,14 +24,16 @@ export interface Post {
   isPinned: boolean;
   createdFrom?: GeoLocationInfo;
   addedTo?: {
-    folderId: ObjectId;
-    timestamp: Date;
+    folder: ObjectId;
+    addedAt: Date;
   }[];
-  caption?: TextContent;
+  caption?: string;
   taggedLocation?: {
     name: string;
-    id: ObjectId;
+    _id: ObjectId;
   };
+  taggedAccounts?: string[];
+  usedAudio?: ObjectId;
   content: PostContent;
   advancedOptions: {
     hideEngagementCount: boolean;
@@ -37,13 +41,19 @@ export interface Post {
     disableCirculation: boolean;
     disableSharing: boolean;
   };
-  meta: {
+  engagementSummary: {
     noOfLikes: number;
     noOfViews: number;
     noOfSaves: number;
     noOfShares: number;
     noOfCirculations: number;
     noOfComments: number;
+  };
+  meta: {
+    hashtags?: string[];
+    mentions?: string[];
+    keywords?: string[];
+    emajis?: string[];
   };
 }
 
@@ -55,12 +65,18 @@ export interface Comment {
   lastUpdatedAt?: Date;
   deletedAt?: Date;
   isApproved: boolean;
-  text: TextContent;
+  text: string;
   repliedTo?: ObjectId;
-  sentimentScore: number;
-  meta: {
+  engagementSummary: {
     noOfReplies: number;
     noOfLikes: number;
+  };
+  meta: {
+    sentimentScore: number;
+    hashtags?: string[];
+    mentions?: string[];
+    keywords?: string[];
+    emajis?: string[];
   };
 }
 

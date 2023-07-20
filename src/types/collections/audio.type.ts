@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { Photo } from "../util.type";
 
 export interface Audio {
   url: string;
@@ -9,7 +10,7 @@ export interface Audio {
   associatedAccountId?: ObjectId;
   title?: string;
   artist?: string;
-  posterUrl?: string;
+  poster?: Photo;
   preview?: {
     url: string;
     start: number;

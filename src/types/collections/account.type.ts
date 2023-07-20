@@ -1,14 +1,80 @@
 import { ObjectId } from "mongodb";
-import {
-  GeoLocationInfo,
-  Link,
-  NotificationSettings,
-  PersonalInfo,
-  PrivacySettings,
-  SecurityInfo,
-  SuggestionSettings,
-  TextContent,
-} from "./util.type";
+import { GeoLocationInfo, Link, TextContent } from "../util.type";
+
+export type ContactInfo = {
+  type: "phone-number" | "email-address";
+  value: string;
+};
+
+export type TwoStepAuthenticationInfo = {
+  enabled: boolean;
+  mechanism?: ContactInfo;
+};
+
+export type SecurityInfo = {
+  passwordHash: string;
+  twoStepAuthInfo: TwoStepAuthenticationInfo;
+  noOfActiveSessions: number;
+};
+
+export type PersonalInfo = {
+  dateOfBirth?: number;
+  gender?: string;
+  contactInfo: ContactInfo;
+};
+
+export type NotificationSettings = {
+  broadcastTopic: string;
+  mentions: "all" | "following" | "off";
+  postLike: "all" | "following" | "off";
+  postComment: "all" | "following" | "off";
+  postTags: "all" | "following" | "off";
+  taggedPostLike: "all" | "following" | "off";
+  taggedPostComment: "all" | "following" | "off";
+  commentLike: "all" | "following" | "off";
+  commentReplies: "all" | "following" | "off";
+  memoryReactions: "all" | "following" | "off";
+  memoryReplies: "all" | "following" | "off";
+  stickerInterctions: "all" | "following" | "off";
+  orginalAudio: "on" | "off";
+  remixes: "on" | "off";
+  messageRequests: "on" | "off";
+  messages: "on" | "off";
+  followRequest: "on" | "off";
+  followRequestAccepted: "on" | "off";
+  startedFollow: "on" | "off";
+};
+
+export type PrivacySettings = {
+  allowMentions: "everyone" | "following" | "none";
+  allowTags: "everyone" | "following" | "none";
+  customOffensiveKeywords: string[];
+  chatSettings: ChatSettings;
+  commentSettings: {
+    hideOffensiveComments: boolean;
+    noOfBlockedAccounts: number;
+  };
+  memorySettings: {
+    noOfHiddenAccounts: number;
+  };
+};
+
+export type MessageRequestSettings = {
+  others: boolean;
+  following: boolean;
+  contacts: boolean;
+};
+
+export type ChatSettings = {
+  messageRequests: MessageRequestSettings;
+  groupInvitations: MessageRequestSettings;
+  hideOffensiveMessageRequests: boolean;
+};
+
+export type SuggestionSettings = {
+  noOfNotInterestedAccounts: number;
+  customSensetiveKeywords: string[];
+};
 
 export interface Account {
   /**
@@ -54,12 +120,6 @@ export interface Account {
   links?: Link[];
 
   /**
-   * The number of followers the user has.
-   * @type {number}
-   */
-  noOfFollowers: number;
-
-  /**
    * The number of posts the user has made.
    * @type {number}
    */
@@ -80,11 +140,6 @@ export interface Account {
   privacySettings: PrivacySettings;
   deletedAt?: Date;
   lastDeActivatedAt?: Date;
-}
-
-export interface AccountDetails {
-  createdAt: Date;
-  accountId: ObjectId;
   noOfBlockedAccounts: number;
   noOfFavoriteAccounts: number;
   noOfMutedAccounts: number;
@@ -95,6 +150,7 @@ export interface AccountDetails {
   suggestionSettings: SuggestionSettings;
   meta: {
     noOfFollowRequests: number;
+    noOfFollowers: number;
     noOfShares: number;
     noOfSearches: number;
     noOfVisits: number;

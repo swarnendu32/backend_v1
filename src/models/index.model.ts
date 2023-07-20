@@ -5,17 +5,25 @@ import {
   AccountDetails,
   AccountFavourite,
   AccountFollower,
-} from "../../types/account.type";
+  MemoryHiddenAccount,
+} from "../types/collections/account.type";
 import {
   CommentLike,
   Post,
   PostLike,
   PostSave,
   PostView,
-} from "../../types/post.type";
-import { LocationVisit } from "../../types/location.type";
-import { HashTag, HashTagVisit } from "../../types/hashtag.type";
-import { Audio, AudioSave, AudioVisit } from "../../types/audio.type";
+} from "../types/collections/post.type";
+import { LocationVisit } from "../types/collections/location.type";
+import { HashTag, HashTagVisit } from "../types/collections/hashtag.type";
+import { Audio, AudioSave, AudioVisit } from "../types/collections/audio.type";
+import {
+  Memory,
+  MemoryLike,
+  MemoryReply,
+  MemoryStickerResponse,
+  MemoryView,
+} from "../types/collections/memory.type";
 
 const database_username = "";
 
@@ -134,6 +142,9 @@ export const accountDetailsCollection =
 export const accountFavouriteCollection =
   appDatabase.collection<AccountFavourite>("account-favourite");
 
+export const memoryHiddenAccountCollection =
+  appDatabase.collection<MemoryHiddenAccount>("memory-hidden-account");
+
 export const postCollection = appDatabase.collection<Post>("post");
 
 export const postLikeCollection = appDatabase.collection<PostLike>("post-like");
@@ -164,3 +175,17 @@ export const audioVisitCollection =
 
 export const audioSaveCollection =
   appDatabase.collection<AudioSave>("audio-save");
+
+export const memoryCollection = appDatabase.collection<Memory>("memory");
+
+export const memoryViewCollection =
+  appDatabase.collection<MemoryView>("memory-view");
+
+export const memoryLikeCollection =
+  appDatabase.collection<MemoryLike>("memory-like");
+
+export const memoryReplyCollection =
+  appDatabase.collection<MemoryReply>("memory-reply");
+
+export const memoryStickerResponseCollection =
+  appDatabase.collection<MemoryStickerResponse>("memory-sticker-response");
