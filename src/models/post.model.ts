@@ -4,36 +4,41 @@ import {
     isPostAvailable,
     postViewStatus,
     privateFollowingStatus,
-} from "../util/dbUtils";
+} from "../utils/dbUtils";
 import {
-    accountCollection,
+    accountBlocksCollection,
+    accountsCollection,
     audioCollection,
-    blockedAccountsCollection,
-    commentLikesCollection,
-    commentsCollection,
-    favouriteAccountsCollection,
-    followedAccountsCollection,
+    commentLikeCollection,
+    commentCollection,
+    accountFavouriteCollection,
+    accountFollowersCollection,
     hashtagCollection,
     locationCollection,
     memoryCollection,
-    memoryViewsCollection,
-    mutedAccountsCollection,
+    memoryViewCollection,
+    accountMuteCollection,
     postCollection,
-    postFoldersCollection,
-    postLikesCollection,
-    postSavesCollection,
-    postViewsCollection,
+    postFolderCollection,
+    postLikeCollection,
+    postSaveCollection,
+    postViewCollection,
+    accountFollowRequestCollection,
 } from "./index.model";
 import {
     AccountTag,
     Editables,
     GeoLocationInfo,
     LocationTag,
-    PostContent,
     TextContent,
 } from "../types/util.type";
-import { Post } from "../types/post.type";
-import { Memory } from "../types/memory.type";
+import { Memory } from "../types/collections/memory.type";
+import { PostContent } from "../types/util.type";
+import { CommentResponse } from "../types/responses/comment.response";
+import { PostResponse } from "../types/responses/post.response";
+import AppError from "../utils/app-error";
+import { StatusCode } from "../types/status-codes";
+import { ErrorCode } from "../types/error-codes";
 
 export async function postUpload(
     session: ClientSession,
@@ -44,12 +49,13 @@ export async function postUpload(
     commentSetting: "disabled" | "following" | "all",
     disableCirculation: boolean,
     disableSharing: boolean,
-    caption?: TextContent,
-    accountTags?: AccountTag,
+    postMeta: TextContent,
+    caption?: string,
+    accountTags?: AccountTag[],
     location?: LocationTag,
     audioId?: string
 ) {
-    let account = await accountCollection.findOne({
+    let account = await accountsCollection.findOne({
         _id: new ObjectId(accountId),
         deletedAt: { $exists: false },
     });
@@ -63,39 +69,36 @@ export async function postUpload(
                 caption: caption,
                 taggedLocation: location,
                 taggedAccounts: accountTags,
+                usedAudio: new ObjectId(audioId),
                 content: content,
-                audioId: new ObjectId(audioId),
                 advancedOptions: {
                     hideEngagementCount: hideEngagementCount,
                     commentSetting: commentSetting,
                     disableCirculation: disableCirculation,
                     disableSharing: disableSharing,
                 },
-                meta: {
+                engagementSummary: {
                     noOfLikes: 0,
-                    noOfComments: 0,
-                    noOfViews: 0,
-                    noOfSaves: 0,
                     noOfCirculations: 0,
+                    noOfComments: 0,
+                    noOfSaves: 0,
                     noOfShares: 0,
+                    noOfViews: 0,
                 },
+                meta: postMeta,
             },
             { session }
         );
         if (location) {
             await locationCollection.updateOne(
-                { _id: new ObjectId(location.id) },
-                {
-                    $inc: {
-                        "meta.noOfPostUses": 1,
-                    },
-                },
+                { _id: location.id },
+                { $inc: { "meta.noOfPostUse": 1 } },
                 { session }
             );
         }
-        if (caption && caption.hashtags) {
-            for (let i = 0; i < caption.hashtags.length; i++) {
-                let hashTagName = caption.hashtags[i];
+        if (caption && postMeta.hashtags) {
+            for (let i = 0; i < postMeta.hashtags.length; i++) {
+                let hashTagName = postMeta.hashtags[i];
                 let hashTag = await hashtagCollection.findOne({
                     name: hashTagName,
                 });
@@ -208,18 +211,18 @@ export async function postEdit(
                     console.log("Post has been deleted");
                     return;
                 }
-                if (items.caption.hashtags) {
+                if (items.meta && items.meta.hashtags) {
                     let newHashTags = new Set<string>();
-                    for (let i = 0; i < items.caption.hashtags.length; i++) {
-                        let hashTag = items.caption.hashtags[i];
+                    for (let i = 0; i < items.meta.hashtags.length; i++) {
+                        let hashTag = items.meta.hashtags[i];
                         let flag = 0;
-                        if (post.caption && post.caption.hashtags) {
+                        if (post.caption && post.meta.hashtags) {
                             for (
                                 let j = 0;
-                                j < post.caption.hashtags.length;
+                                j < post.meta.hashtags.length;
                                 j++
                             ) {
-                                if (hashTag === post.caption.hashtags[j]) {
+                                if (hashTag === post.meta.hashtags[j]) {
                                     flag = 1;
                                     break;
                                 }
@@ -322,7 +325,7 @@ export async function postLikeOrUnlike(
     if (liked) {
         const viewed = await postViewStatus(postId, accountId);
         if (!viewed) {
-            await postViewsCollection.insertOne(
+            await postViewCollection.insertOne(
                 {
                     _id: new ObjectId(),
                     postId: new ObjectId(postId),
@@ -346,7 +349,7 @@ export async function postLikeOrUnlike(
             }
         }
 
-        await postLikesCollection.insertOne(
+        await postLikeCollection.insertOne(
             {
                 _id: new ObjectId(),
                 postId: new ObjectId(postId),
@@ -369,7 +372,7 @@ export async function postLikeOrUnlike(
             return;
         }
     } else {
-        let postLike = await postLikesCollection.findOne(
+        let postLike = await postLikeCollection.findOne(
             {
                 postId: new ObjectId(postId),
                 likedBy: new ObjectId(accountId),
@@ -377,7 +380,7 @@ export async function postLikeOrUnlike(
             { session }
         );
         if (postLike) {
-            await postLikesCollection.deleteOne(
+            await postLikeCollection.deleteOne(
                 {
                     postId: new ObjectId(postId),
                     likedBy: new ObjectId(accountId),
@@ -416,7 +419,7 @@ export async function postSaveOrUnsave(
         return;
     }
     if (saved) {
-        await postSavesCollection.insertOne(
+        await postSaveCollection.insertOne(
             {
                 postId: new ObjectId(postId),
                 savedBy: new ObjectId(accountId),
@@ -434,7 +437,7 @@ export async function postSaveOrUnsave(
             return;
         }
     } else {
-        let save = await postSavesCollection.findOne(
+        let save = await postSaveCollection.findOne(
             {
                 postId: new ObjectId(postId),
                 savedBy: new ObjectId(accountId),
@@ -442,7 +445,7 @@ export async function postSaveOrUnsave(
             { session }
         );
         if (save) {
-            await postSavesCollection.deleteOne(
+            await postSaveCollection.deleteOne(
                 {
                     postId: new ObjectId(postId),
                     savedBy: new ObjectId(accountId),
@@ -479,7 +482,7 @@ export async function postFolderAddOrRemove(
         console.log("Post does not exist");
         return;
     }
-    let folder = await postFoldersCollection.findOne({
+    let folder = await postFolderCollection.findOne({
         name: folderName,
         createdBy: new ObjectId(accountId),
     });
@@ -490,8 +493,8 @@ export async function postFolderAddOrRemove(
                 {
                     $push: {
                         addedTo: {
-                            folderId: folder._id,
-                            timestamp: new Date(),
+                            folder: folder._id,
+                            addedAt: new Date(),
                         },
                     },
                 },
@@ -501,7 +504,7 @@ export async function postFolderAddOrRemove(
                 console.log("The post has been deleted");
                 return;
             }
-            await postFoldersCollection.updateOne(
+            await postFolderCollection.updateOne(
                 { name: folderName, createdBy: new ObjectId(accountId) },
                 { $inc: { noOfPosts: 1 } },
                 { session }
@@ -520,7 +523,7 @@ export async function postFolderAddOrRemove(
                 console.log("The post has been deleted");
                 return;
             }
-            await postFoldersCollection.updateOne(
+            await postFolderCollection.updateOne(
                 { _id: folder._id },
                 { $inc: { noOfPosts: -1 } },
                 { session }
@@ -537,7 +540,8 @@ export async function postComment(
     text: string,
     hashTags?: string[],
     mentions?: string[],
-    keywords?: string[]
+    keywords?: string[],
+    emojis?: string[]
 ) {
     const post = await postCollection.findOne({
         _id: new ObjectId(postId),
@@ -552,7 +556,7 @@ export async function postComment(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne({
+                    let following = await accountFollowersCollection.findOne({
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
                     });
@@ -566,7 +570,7 @@ export async function postComment(
             }
             const viewed = await postViewStatus(postId, accountId);
             if (!viewed) {
-                await postViewsCollection.insertOne(
+                await postViewCollection.insertOne(
                     {
                         _id: new ObjectId(),
                         postId: new ObjectId(postId),
@@ -589,23 +593,24 @@ export async function postComment(
                     return;
                 }
             }
-            await commentsCollection.insertOne(
+            await commentCollection.insertOne(
                 {
                     isPinned: false,
                     postId: new ObjectId(postId),
                     createdBy: new ObjectId(accountId),
                     createdAt: new Date(),
                     isApproved: true,
-                    content: {
-                        text: text,
-                        keywords: keywords,
-                        hashtags: hashTags,
-                        mentions: mentions,
-                    },
-                    sentimentScore: sentimentScore,
-                    meta: {
+                    text: text,
+                    engagementSummary: {
                         noOfReplies: 0,
                         noOfLikes: 0,
+                    },
+                    meta: {
+                        sentimentScore: sentimentScore,
+                        hashtags: hashTags,
+                        mentions: mentions,
+                        keywords: keywords,
+                        emojis: emojis,
                     },
                 },
                 { session }
@@ -672,7 +677,7 @@ export async function postCommentLikeOrUnlike(
         deletedAt: { $exists: false },
         "advancedOptions.commentSetting": { $ne: "disabled" },
     });
-    const comment = await commentsCollection.findOne({
+    const comment = await commentCollection.findOne({
         _id: new ObjectId(commentId),
         deletedAt: { $exists: false },
     });
@@ -684,7 +689,7 @@ export async function postCommentLikeOrUnlike(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne({
+                    let following = await accountFollowersCollection.findOne({
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
                     });
@@ -697,7 +702,7 @@ export async function postCommentLikeOrUnlike(
                 }
             }
             if (liked) {
-                await commentLikesCollection.insertOne(
+                await commentLikeCollection.insertOne(
                     {
                         commentId: new ObjectId(commentId),
                         likedBy: new ObjectId(accountId),
@@ -705,7 +710,7 @@ export async function postCommentLikeOrUnlike(
                     },
                     { session }
                 );
-                let commentLikeCount = await commentsCollection.updateOne(
+                let commentLikeCount = await commentCollection.updateOne(
                     {
                         _id: new ObjectId(commentId),
                         deletedAt: { $exists: false },
@@ -722,7 +727,7 @@ export async function postCommentLikeOrUnlike(
                     return;
                 }
             } else {
-                let commentLike = await commentLikesCollection.findOne(
+                let commentLike = await commentLikeCollection.findOne(
                     {
                         commentId: new ObjectId(commentId),
                         likedBy: new ObjectId(accountId),
@@ -730,14 +735,14 @@ export async function postCommentLikeOrUnlike(
                     { session }
                 );
                 if (commentLike) {
-                    await commentLikesCollection.deleteOne(
+                    await commentLikeCollection.deleteOne(
                         {
                             commentId: new ObjectId(commentId),
                             likedBy: new ObjectId(accountId),
                         },
                         { session }
                     );
-                    let commentLikeCount = await commentsCollection.updateOne(
+                    let commentLikeCount = await commentCollection.updateOne(
                         {
                             _id: new ObjectId(commentId),
                             deletedAt: { $exists: false },
@@ -776,7 +781,7 @@ export async function postCommentPinOrUnpin(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne({
+    let comment = await commentCollection.findOne({
         _id: new ObjectId(commentId),
         deletedAt: { $exists: false },
     });
@@ -788,7 +793,7 @@ export async function postCommentPinOrUnpin(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne({
+                    let following = await accountFollowersCollection.findOne({
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
                     });
@@ -801,7 +806,7 @@ export async function postCommentPinOrUnpin(
                 }
             }
             if (pinned) {
-                let pin = await commentsCollection.updateOne(
+                let pin = await commentCollection.updateOne(
                     {
                         _id: new ObjectId(commentId),
                         deletedAt: { $exists: false },
@@ -815,7 +820,7 @@ export async function postCommentPinOrUnpin(
                     return;
                 }
             } else {
-                let pin = await commentsCollection.updateOne(
+                let pin = await commentCollection.updateOne(
                     {
                         _id: new ObjectId(commentId),
                         deletedAt: { $exists: false },
@@ -847,7 +852,7 @@ export async function postCommentDelete(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne(
+    let comment = await commentCollection.findOne(
         {
             _id: new ObjectId(commentId),
             deletedAt: { $exists: false },
@@ -868,7 +873,7 @@ export async function postCommentDelete(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne({
+                    let following = await accountFollowersCollection.findOne({
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
                     });
@@ -880,7 +885,7 @@ export async function postCommentDelete(
                     }
                 }
             }
-            let commentDelete = await commentsCollection.updateOne(
+            let commentDelete = await commentCollection.updateOne(
                 {
                     _id: new ObjectId(commentId),
                     deletedAt: { $exists: false },
@@ -926,7 +931,7 @@ export async function postCommentEdit(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne(
+    let comment = await commentCollection.findOne(
         {
             _id: new ObjectId(commentId),
             deletedAt: { $exists: false },
@@ -940,7 +945,7 @@ export async function postCommentEdit(
                 post.advancedOptions.commentSetting === "all")
         ) {
             if (post.advancedOptions.commentSetting === "following") {
-                let following = await followedAccountsCollection.findOne(
+                let following = await accountFollowersCollection.findOne(
                     {
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
@@ -954,7 +959,7 @@ export async function postCommentEdit(
                     return;
                 }
             }
-            let commentUpdate = await commentsCollection.updateOne(
+            let commentUpdate = await commentCollection.updateOne(
                 {
                     _id: new ObjectId(commentId),
                     deletedAt: { $exists: false },
@@ -980,13 +985,9 @@ export async function postCommentEdit(
                 for (let i = 0; i < hashTags.length; i++) {
                     let hashTag = hashTags[i];
                     let flag = 0;
-                    if (comment.content.hashtags) {
-                        for (
-                            let j = 0;
-                            j < comment.content.hashtags.length;
-                            i++
-                        ) {
-                            if (hashTag === comment.content.hashtags[j]) {
+                    if (comment.meta.hashtags) {
+                        for (let j = 0; j < comment.meta.hashtags.length; i++) {
+                            if (hashTag === comment.meta.hashtags[j]) {
                                 flag = 1;
                                 break;
                             }
@@ -1042,7 +1043,8 @@ export async function postCommentReply(
     text: string,
     keywords?: string[],
     hashtags?: string[],
-    mentions?: string[]
+    mentions?: string[],
+    emojis?: string[]
 ) {
     let post = await postCollection.findOne(
         {
@@ -1052,7 +1054,7 @@ export async function postCommentReply(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne({
+    let comment = await commentCollection.findOne({
         _id: new ObjectId(commentId),
         deletedAt: { $exists: false },
     });
@@ -1064,7 +1066,7 @@ export async function postCommentReply(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne(
+                    let following = await accountFollowersCollection.findOne(
                         {
                             accountId: post.createdBy,
                             followedBy: new ObjectId(accountId),
@@ -1079,36 +1081,37 @@ export async function postCommentReply(
                     }
                 }
             }
-            await commentsCollection.insertOne(
+            await commentCollection.insertOne(
                 {
                     isPinned: false,
                     postId: new ObjectId(postId),
                     createdBy: new ObjectId(accountId),
                     createdAt: new Date(),
                     isApproved: true,
-                    content: {
-                        text: text,
+                    text: text,
+                    repliedTo: new ObjectId(commentId),
+                    engagementSummary: {
+                        noOfLikes: 0,
+                        noOfReplies: 0,
+                    },
+                    meta: {
                         hashtags: hashtags,
                         keywords: keywords,
                         mentions: mentions,
-                    },
-                    repliedTo: new ObjectId(commentId),
-                    sentimentScore: sentimentScore,
-                    meta: {
-                        noOfLikes: 0,
-                        noOfReplies: 0,
+                        emojis: emojis,
+                        sentimentScore: sentimentScore,
                     },
                 },
                 { session }
             );
-            let replyCount = await commentsCollection.updateOne(
+            let replyCount = await commentCollection.updateOne(
                 {
                     _id: new ObjectId(commentId),
                     deletedAt: { $exists: false },
                 },
                 {
                     $inc: {
-                        "meta.noOfReplies": 1,
+                        "engagementSummary.noOfReplies": 1,
                     },
                 },
                 { session }
@@ -1133,11 +1136,11 @@ export async function postCommentReplyLikeOrUnlike(
         deletedAt: { $exists: false },
         "advancedOptions.disableComment": false,
     });
-    let comment = await commentsCollection.findOne({
+    let comment = await commentCollection.findOne({
         _id: new ObjectId(commentId),
         deletedAt: { $exists: false },
     });
-    let reply = await commentsCollection.countDocuments({
+    let reply = await commentCollection.countDocuments({
         _id: new ObjectId(replyId),
         deletedAt: { $exists: false },
     });
@@ -1149,7 +1152,7 @@ export async function postCommentReplyLikeOrUnlike(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    const following = await followedAccountsCollection.findOne(
+                    const following = await accountFollowersCollection.findOne(
                         {
                             accountId: post.createdBy,
                             followedBy: new ObjectId(accountId),
@@ -1165,7 +1168,7 @@ export async function postCommentReplyLikeOrUnlike(
                 }
             }
             if (liked) {
-                await commentLikesCollection.insertOne(
+                await commentLikeCollection.insertOne(
                     {
                         commentId: new ObjectId(replyId),
                         likedBy: new ObjectId(accountId),
@@ -1173,7 +1176,7 @@ export async function postCommentReplyLikeOrUnlike(
                     },
                     { session }
                 );
-                let replyLikeCount = await commentsCollection.updateOne(
+                let replyLikeCount = await commentCollection.updateOne(
                     {
                         _id: new ObjectId(replyId),
                         deletedAt: { $exists: false },
@@ -1190,7 +1193,7 @@ export async function postCommentReplyLikeOrUnlike(
                     return;
                 }
             } else {
-                let replyLike = await commentLikesCollection.findOne(
+                let replyLike = await commentLikeCollection.findOne(
                     {
                         commentId: new ObjectId(replyId),
                         likedBy: new ObjectId(accountId),
@@ -1198,14 +1201,14 @@ export async function postCommentReplyLikeOrUnlike(
                     { session }
                 );
                 if (replyLike) {
-                    await commentLikesCollection.deleteOne(
+                    await commentLikeCollection.deleteOne(
                         {
                             commentId: new ObjectId(replyId),
                             likedBy: new ObjectId(accountId),
                         },
                         { session }
                     );
-                    let replyLikeCount = await commentsCollection.updateOne(
+                    let replyLikeCount = await commentCollection.updateOne(
                         {
                             _id: new ObjectId(replyId),
                             deletedAt: { $exists: false },
@@ -1246,14 +1249,14 @@ export async function postCommentReplyEdit(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne(
+    let comment = await commentCollection.findOne(
         {
             _id: new ObjectId(commentId),
             deletedAt: { $exists: false },
         },
         { session }
     );
-    let reply = await commentsCollection.findOne(
+    let reply = await commentCollection.findOne(
         {
             _id: new ObjectId(replyId),
             deletedAt: { $exists: false },
@@ -1268,7 +1271,7 @@ export async function postCommentReplyEdit(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne(
+                    let following = await accountFollowersCollection.findOne(
                         {
                             accountId: post.createdBy,
                             followedBy: new ObjectId(accountId),
@@ -1283,7 +1286,7 @@ export async function postCommentReplyEdit(
                     }
                 }
             }
-            let replyUpdate = await commentsCollection.updateOne(
+            let replyUpdate = await commentCollection.updateOne(
                 { _id: new ObjectId(replyId), deletedAt: { $exists: false } },
                 {
                     $set: {
@@ -1307,13 +1310,9 @@ export async function postCommentReplyEdit(
                 for (let i = 0; i < hashTags.length; i++) {
                     let hashTag = hashTags[i];
                     let flag = 0;
-                    if (reply.content.hashtags) {
-                        for (
-                            let j = 0;
-                            j < reply.content.hashtags.length;
-                            i++
-                        ) {
-                            if (hashTag === reply.content.hashtags[j]) {
+                    if (reply.meta.hashtags) {
+                        for (let j = 0; j < reply.meta.hashtags.length; i++) {
+                            if (hashTag === reply.meta.hashtags[j]) {
                                 flag = 1;
                                 break;
                             }
@@ -1375,14 +1374,14 @@ export async function postCommentReplyDelete(
         },
         { session }
     );
-    let comment = await commentsCollection.findOne(
+    let comment = await commentCollection.findOne(
         {
             _id: new ObjectId(commentId),
             deletedAt: { $exists: false },
         },
         { session }
     );
-    let reply = await commentsCollection.findOne(
+    let reply = await commentCollection.findOne(
         {
             _id: new ObjectId(replyId),
             deletedAt: { $exists: false },
@@ -1403,7 +1402,7 @@ export async function postCommentReplyDelete(
         ) {
             if (post.advancedOptions.commentSetting === "following") {
                 if (post.createdBy.toString() !== accountId) {
-                    let following = await followedAccountsCollection.findOne({
+                    let following = await accountFollowersCollection.findOne({
                         accountId: post.createdBy,
                         followedBy: new ObjectId(accountId),
                     });
@@ -1415,7 +1414,7 @@ export async function postCommentReplyDelete(
                     }
                 }
             }
-            let replyDelete = await commentsCollection.updateOne(
+            let replyDelete = await commentCollection.updateOne(
                 {
                     _id: new ObjectId(replyId),
                     deletedAt: { $exists: false },
@@ -1431,7 +1430,7 @@ export async function postCommentReplyDelete(
                 console.log("Deleting an already deleted comment");
                 return;
             }
-            let replyCount = await commentsCollection.updateOne(
+            let replyCount = await commentCollection.updateOne(
                 { _id: new ObjectId(commentId), deletedAt: { $exists: false } },
                 { $inc: { "meta.noOfreplies": -1 } },
                 { session }
@@ -1453,7 +1452,7 @@ export async function postFolderCreateOrDelete(
     selectedThumbnailPostId?: ObjectId
 ) {
     if (!deleted) {
-        let postFolder = await postFoldersCollection.findOne(
+        let postFolder = await postFolderCollection.findOne(
             {
                 name: folderName,
                 createdBy: accountId,
@@ -1461,7 +1460,7 @@ export async function postFolderCreateOrDelete(
             { session }
         );
         if (!postFolder) {
-            await postFoldersCollection.insertOne(
+            await postFolderCollection.insertOne(
                 {
                     name: folderName,
                     createdBy: accountId,
@@ -1477,7 +1476,7 @@ export async function postFolderCreateOrDelete(
             return;
         }
     } else {
-        let postFolder = await postFoldersCollection.findOne(
+        let postFolder = await postFolderCollection.findOne(
             {
                 name: folderName,
                 createdBy: accountId,
@@ -1485,7 +1484,7 @@ export async function postFolderCreateOrDelete(
             { session }
         );
         if (postFolder) {
-            await postFoldersCollection.deleteOne(
+            await postFolderCollection.deleteOne(
                 {
                     name: folderName,
                     createdBy: accountId,
@@ -1502,83 +1501,558 @@ export async function postFolderCreateOrDelete(
         }
     }
 }
-
+// : Promise<PostResponse & CommentResponse>
 export async function getPostById(
     postId: string,
     accountId: string,
     pageSize: number,
     offset: number
 ) {
-    let post = await postCollection.findOne({
-        _id: new ObjectId(postId),
-        deletedAt: { $exists: false },
-    });
-    if (!post) {
-        console.log("Post not found");
-        return;
-    }
-    let author = await accountCollection.findOne({
-        _id: post.createdBy,
-        deletedAt: { $exists: false },
-    });
+    // let post = await postCollection.findOne({
+    //     _id: new ObjectId(postId),
+    //     deletedAt: { $exists: false },
+    // });
+    // if (!post) {
+    //     console.log("Post not found");
+    //     throw new AppError(
+    //         "Post not found",
+    //         StatusCode.NOT_FOUND,
+    //         ErrorCode.ACCOUNT_UPDATE_ACKNOLEDGEMENT_ERROR
+    //     );
+    // }
+    // let author = await accountsCollection.findOne({
+    //     _id: post.createdBy,
+    //     deletedAt: { $exists: false },
+    // });
 
-    if (!author) {
-        console.log("Author not found");
-        return;
-    }
+    // if (!author) {
+    //     console.log("Author not found");
+    //     throw new AppError(
+    //         "Post not found",
+    //         StatusCode.NOT_FOUND,
+    //         ErrorCode.ACCOUNT_UPDATE_ACKNOLEDGEMENT_ERROR
+    //     );
+    // }
 
-    let blocked = await blockedAccountsCollection.findOne({
-        $or: [
-            { accountId: new ObjectId(accountId), blockedBy: author._id },
-            { accountId: author._id, blockedBy: new ObjectId(accountId) },
-        ],
-    });
+    // let blocked = await accountBlocksCollection.findOne({
+    //     $or: [
+    //         { accountId: new ObjectId(accountId), blockedBy: author._id },
+    //         { accountId: author._id, blockedBy: new ObjectId(accountId) },
+    //     ],
+    // });
 
-    if (blocked) {
-        console.log("Post not found");
-        return;
-    }
+    // if (blocked) {
+    //     console.log("Post not found");
+    //     throw new AppError(
+    //         "Post not found",
+    //         StatusCode.NOT_FOUND,
+    //         ErrorCode.ACCOUNT_UPDATE_ACKNOLEDGEMENT_ERROR
+    //     );
+    // }
 
-    let following = await followedAccountsCollection.findOne({
-        accountId: author._id,
-        followedBy: new ObjectId(accountId),
-    });
-    if (author.isPrivate && !following) {
-        console.log("Post not found");
-        return;
-    }
-    let hasUnseenMemory = false;
-    let unseenMemories: Memory[] = [];
-    let memories = await memoryCollection
-        .find({
-            createdBy: author._id,
-            deletedAt: { $exists: false },
-            expireAt: { $gt: new Date() },
-        })
-        .toArray();
-    for (let i = 0; i < memories.length; i++) {
-        let memory = memories[i];
-        let unseenMemory = await memoryViewsCollection.findOne({
-            memoryId: memory._id,
-            viewedBy: new ObjectId(accountId),
-        });
-        if (unseenMemory) {
-            unseenMemories.push(memory);
-        }
-    }
-    if (unseenMemories.length) {
-        hasUnseenMemory = true;
-    }
-    // let comments = getPaginatedComments()
-    return post;
+    // let following = await accountFollowersCollection.findOne({
+    //     accountId: author._id,
+    //     followedBy: new ObjectId(accountId),
+    // });
+    // if (author.isPrivate && !following) {
+    //     console.log("Post not found");
+    //     throw new AppError(
+    //         "Post not found",
+    //         StatusCode.NOT_FOUND,
+    //         ErrorCode.ACCOUNT_UPDATE_ACKNOLEDGEMENT_ERROR
+    //     );
+    // }
+    // let hasUnseenMemory = false;
+    // let unseenMemories: Memory[] = [];
+    // let memories = await memoryCollection
+    //     .find({
+    //         createdBy: author._id,
+    //         deletedAt: { $exists: false },
+    //         expireAt: { $gt: new Date() },
+    //     })
+    //     .toArray();
+    // for (let i = 0; i < memories.length; i++) {
+    //     let memory = memories[i];
+    //     let unseenMemory = await memoryViewCollection.findOne({
+    //         memoryId: memory._id,
+    //         viewedBy: new ObjectId(accountId),
+    //     });
+    //     if (unseenMemory) {
+    //         unseenMemories.push(memory);
+    //     }
+    // }
+    // if (unseenMemories.length) {
+    //     hasUnseenMemory = true;
+    // }
+    // let comments = getPostComments(postId, accountId, pageSize, offset);
+
+    // return { post, comments };
 }
 
-export async function getPostComments(postId: string, accountId: string) {
-    let pipeline = [
-        {
-            $match: {
-                _id: new ObjectId(postId),
-            },
-        },
-    ];
+export async function getPostComments(
+    postId: string,
+    accountId: string,
+    pageSize: number = 5,
+    offset: number
+) {
+    // let pipeline = [
+    //     {
+    //         $match: {
+    //             postId: new ObjectId(postId),
+    //             deletedAt: { $exists: false },
+    //             isApproved: true,
+    //         },
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountBlocksCollection,
+    //             let: {
+    //                 accountId: new ObjectId(accountId),
+    //                 authorId: "$createdBy",
+    //             },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             $or: [
+    //                                 {
+    //                                     acountId: "$$accountId",
+    //                                     blockedBy: "$$authorId",
+    //                                 },
+    //                                 {
+    //                                     acountId: "$$authorId",
+    //                                     blockedBy: "$$accountId",
+    //                                 },
+    //                             ],
+    //                         },
+    //                     },
+    //                 },
+    //             ],
+    //             as: "blocked",
+    //         },
+    //     },
+    //     {
+    //         $match: {
+    //             blocked: { $size: 0 },
+    //         },
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountsCollection,
+    //             let: { authorId: "$createdBy" },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             _id: "$$authorId",
+    //                         },
+    //                     },
+    //                 },
+    //                 {
+    //                     $project: {
+    //                         _id: 0,
+    //                         username: 1,
+    //                         profilePictureUrl: 1,
+    //                         isPrivate: 1,
+    //                     },
+    //                 },
+    //                 {
+    //                     $lookup: {
+    //                         from: accountFollowersCollection,
+    //                         let: { accountId: new ObjectId(accountId) },
+    //                         pipeline: [
+    //                             {
+    //                                 $match: {
+    //                                     $expr: {
+    //                                         accountId: "$$authorId",
+    //                                         followedby: "$$accountId",
+    //                                     },
+    //                                 },
+    //                             },
+    //                         ],
+    //                         as: "following",
+    //                     },
+    //                 },
+    //                 {
+    //                     $set: {
+    //                         isFollowing: {
+    //                             $cond: {
+    //                                 if: { following: { $size: 0 } },
+    //                                 then: false,
+    //                                 else: true,
+    //                             },
+    //                         },
+    //                     },
+    //                     $unset: ["following"],
+    //                 },
+    //                 {
+    //                     $lookup: {
+    //                         from: memoryCollection,
+    //                         let: { currentDate: new Date() },
+    //                         pipeline: [
+    //                             {
+    //                                 $match: {
+    //                                     $expr: {
+    //                                         createdBy: "$$authorId",
+    //                                         expiredAt: { $gt: "$$currentDate" },
+    //                                         deletedAt: { $exists: false },
+    //                                     },
+    //                                 },
+    //                             },
+    //                             {
+    //                                 $lookup: {
+    //                                     from: memoryViewCollection,
+    //                                     let: {
+    //                                         memoryId: "$_id",
+    //                                         accountId: new ObjectId(accountId),
+    //                                     },
+    //                                     pipeline: [
+    //                                         {
+    //                                             $match: {
+    //                                                 $expr: {
+    //                                                     memoryId: "$$memoryId",
+    //                                                     viewedBy: "$$accountId",
+    //                                                 },
+    //                                             },
+    //                                         },
+    //                                     ],
+    //                                     as: "seenMemory",
+    //                                 },
+    //                             },
+    //                             {
+    //                                 $set: {
+    //                                     isViewed: {
+    //                                         $cond: {
+    //                                             if: {
+    //                                                 seenMemory: {
+    //                                                     $size: 0,
+    //                                                 },
+    //                                             },
+    //                                             then: false,
+    //                                             else: true,
+    //                                         },
+    //                                     },
+    //                                 },
+    //                                 $unset: ["seenMemory"],
+    //                             },
+    //                             {
+    //                                 $match: {
+    //                                     $expr: {
+    //                                         isViewed: false,
+    //                                     },
+    //                                 },
+    //                             },
+    //                         ],
+    //                         as: "memory",
+    //                     },
+    //                 },
+    //                 {
+    //                     $set: {
+    //                         hasUnseenMemory: {
+    //                             $cond: {
+    //                                 if: {
+    //                                     $or: [
+    //                                         { memory: { $size: 0 } },
+    //                                         {
+    //                                             $and: [
+    //                                                 { isPrivate: true },
+    //                                                 { isFollowing: false },
+    //                                             ],
+    //                                         },
+    //                                     ],
+    //                                 },
+    //                                 then: false,
+    //                                 else: true,
+    //                             },
+    //                         },
+    //                     },
+    //                     $unset: ["memory", "isFollowing"],
+    //                 },
+    //             ],
+    //             as: "author",
+    //         },
+    //     },
+    //     {
+    //         $set: { createdBy: { $arrayElemAt: ["author", 0] } },
+    //     },
+    //     {
+    //         $project: {
+    //             _id: 1,
+    //             createdAt: 1,
+    //             createdBy: 1,
+    //             text: 1,
+    //             isPinned: 1,
+    //             noOfLikes: "$engagementSummary.noOfLikes",
+    //             noOfReplies: "$engagementSummary.noOfReplies",
+    //         },
+    //     },
+    //     {
+    //         $skip: offset,
+    //     },
+    //     {
+    //         $limit: pageSize,
+    //     },
+    // ];
+    // let comments = await commentCollection
+    //     .aggregate<CommentResponse>(pipeline)
+    //     .toArray();
+    // return comments;
+}
+
+export async function getPostLikes(
+    postId: string,
+    accountId: string,
+    pageSize: number,
+    offset: number
+) {
+    // let pipeline = [
+    //     {
+    //         $match: {
+    //             postId: new ObjectId(postId),
+    //         },
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountBlocksCollection,
+    //             let: {
+    //                 accountId: new ObjectId(accountId),
+    //                 likedByAccount: "$likedBy",
+    //             },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             $or: [
+    //                                 {
+    //                                     blockedBy: "$$likedByAccount",
+    //                                     accountId: "$$accountId",
+    //                                 },
+    //                                 {
+    //                                     blockedBy: "$$accountId",
+    //                                     accountId: "$$likedByAccount",
+    //                                 },
+    //                             ],
+    //                         },
+    //                     },
+    //                 },
+    //             ],
+    //             as: "blocked",
+    //         },
+    //     },
+    //     {
+    //         $match: {
+    //             blocked: { $size: 0 },
+    //         },
+    //     },
+    //     {
+    //         $unset: ["blocked"],
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountsCollection,
+    //             let: { accountId: "$likedBy" },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             _id: "$$accountId",
+    //                         },
+    //                     },
+    //                 },
+    //                 {
+    //                     $project: {
+    //                         _id: 1,
+    //                         username: 1,
+    //                         profilePictureUrl: 1,
+    //                         isPrivate: 1,
+    //                     },
+    //                 },
+    //             ],
+    //             as: "accountInfo",
+    //         },
+    //     },
+    //     {
+    //         $set: {
+    //             _id: { $arrayElemAt: ["accountInfo", 0] },
+    //             username: { $arrayElemAt: ["accountInfo", 1] },
+    //             profilePictureUrl: { $arrayElemAt: ["accountInfo", 2] },
+    //             isPrivate: { $arrayElemAt: ["accountInfo", 3] },
+    //         },
+    //         $unset: ["accountInfo", "postId"],
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountFollowersCollection,
+    //             let: {
+    //                 accountId: "$likedBy",
+    //                 requestingAccount: new ObjectId(accountId),
+    //             },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             accountId: "$$authorId",
+    //                             followedBy: "$$requestingAccount",
+    //                         },
+    //                     },
+    //                 },
+    //             ],
+    //             as: "following",
+    //         },
+    //     },
+    //     {
+    //         $set: {
+    //             isFollowing: {
+    //                 $cond: {
+    //                     if: {
+    //                         following: { $size: 0 },
+    //                     },
+    //                     then: false,
+    //                     else: true,
+    //                 },
+    //             },
+    //         },
+    //         $unset: ["following"],
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: accountFollowRequestCollection,
+    //             let: {
+    //                 accountId: "$likedBy",
+    //                 requestingAccount: new ObjectId(accountId),
+    //             },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             accountId: "$$accountId",
+    //                             requestedBy: "$$requestingAccount",
+    //                         },
+    //                     },
+    //                 },
+    //             ],
+    //             as: "followRequests",
+    //         },
+    //     },
+    //     {
+    //         $set: {
+    //             isRequested: {
+    //                 $cond: {
+    //                     if: {
+    //                         followRequests: { $size: 0 },
+    //                     },
+    //                     then: false,
+    //                     else: true,
+    //                 },
+    //             },
+    //         },
+    //         $unset: ["followRequests"],
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: memoryCollection,
+    //             let: { currentDate: new Date(), accountId: "$likedBy" },
+    //             pipeline: [
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             createdBy: "$$accountId",
+    //                             expiredAt: { $gt: "$$currentDate" },
+    //                             deletedAt: { $exists: false },
+    //                         },
+    //                     },
+    //                 },
+    //                 {
+    //                     $lookup: {
+    //                         from: memoryViewCollection,
+    //                         let: {
+    //                             memoryId: "$_id",
+    //                             requestingAccount: new ObjectId(accountId),
+    //                         },
+    //                         pipeline: [
+    //                             {
+    //                                 $match: {
+    //                                     $expr: {
+    //                                         memoryId: "$$memoryId",
+    //                                         viewedBy: "$$requestingAccount",
+    //                                     },
+    //                                 },
+    //                             },
+    //                         ],
+    //                         as: "seenMemory",
+    //                     },
+    //                 },
+    //                 {
+    //                     $set: {
+    //                         isViewed: {
+    //                             $cond: {
+    //                                 if: {
+    //                                     seenMemory: {
+    //                                         $size: 0,
+    //                                     },
+    //                                 },
+    //                                 then: false,
+    //                                 else: true,
+    //                             },
+    //                         },
+    //                     },
+    //                     $unset: ["seenMemory"],
+    //                 },
+    //                 {
+    //                     $match: {
+    //                         $expr: {
+    //                             isViewed: false,
+    //                         },
+    //                     },
+    //                 },
+    //             ],
+    //             as: "memory",
+    //         },
+    //     },
+    //     {
+    //         $set: {
+    //             hasUnseenMemory: {
+    //                 $cond: {
+    //                     if: {
+    //                         $or: [
+    //                             { memory: { $size: 0 } },
+    //                             {
+    //                                 $and: [
+    //                                     { isPrivate: true },
+    //                                     { isFollowing: false },
+    //                                 ],
+    //                             },
+    //                         ],
+    //                     },
+    //                     then: false,
+    //                     else: true,
+    //                 },
+    //             },
+    //         },
+    //         $unset: ["memory"],
+    //     },
+    //     {
+    //         $project: {
+    //             _id: 1,
+    //             username: 1,
+    //             profilePictureUrl: 1,
+    //             hasUnseenMemory: 1,
+    //             isFollowing: 1,
+    //             isPrivate: 1,
+    //             isRequested: 1,
+    //             createdAt: 1,
+    //         },
+    //     },
+    //     {
+    //         sort: { createdAt: -1 },
+    //     },
+    //     {
+    //         $skip: offset,
+    //     },
+    //     {
+    //         $limit: pageSize,
+    //     },
+    // ];
+    // let postLikes = await postLikeCollection.aggregate(pipeline).toArray();
+    // return postLikes;
 }

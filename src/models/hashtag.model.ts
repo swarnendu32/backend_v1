@@ -1,25 +1,27 @@
 import { ObjectId } from "mongodb";
-import { Post } from "../types/post.type";
+import { Post } from "../types/collections/post.type";
 import {
-    accountCollection,
-    blockedAccountsCollection,
-    favouriteAccountsCollection,
-    followedAccountsCollection,
+    accountsCollection,
+    accountBlocksCollection,
+    accountFavouriteCollection,
+    accountFollowersCollection,
     memoryCollection,
-    memoryViewsCollection,
-    mutedAccountsCollection,
+    memoryViewCollection,
+    accountMuteCollection,
     postCollection,
-    postLikesCollection,
-    postSavesCollection,
-    postViewsCollection,
+    postLikeCollection,
+    postSaveCollection,
+    postViewCollection,
+    accountFollowRequestCollection,
 } from "./index.model";
+import { PostResponse } from "../types/responses/post.response";
 
 export async function getPostsByHashtags(
     accountId: string,
     hashTagName: string,
     pageSize: number = 5,
     offset: number
-) {
+): Promise<PostResponse[]> {
     const pipeline = [
         {
             $match: {
@@ -30,7 +32,7 @@ export async function getPostsByHashtags(
         },
         {
             $lookup: {
-                from: blockedAccountsCollection,
+                from: accountBlocksCollection,
                 let: {
                     authorId: "$createdBy",
                     accountId: new ObjectId(accountId),
@@ -62,8 +64,11 @@ export async function getPostsByHashtags(
             },
         },
         {
+            $unset: ["blocked"],
+        },
+        {
             $lookup: {
-                from: accountCollection,
+                from: accountsCollection,
                 let: { authorId: "$createdBy" },
                 pipeline: [
                     {
@@ -76,7 +81,7 @@ export async function getPostsByHashtags(
                     },
                     {
                         $lookup: {
-                            from: followedAccountsCollection,
+                            from: accountFollowersCollection,
                             let: {
                                 accountId: new ObjectId(accountId),
                             },
@@ -104,15 +109,6 @@ export async function getPostsByHashtags(
                                     else: true,
                                 },
                             },
-                            notification: {
-                                $cond: {
-                                    if: {
-                                        following: { $size: 0 },
-                                    },
-                                    then: undefined,
-                                    else: "$following.0.notify",
-                                },
-                            },
                         },
                         $unset: ["following"],
                     },
@@ -135,7 +131,7 @@ export async function getPostsByHashtags(
                     },
                     {
                         $lookup: {
-                            from: favouriteAccountsCollection,
+                            from: accountFavouriteCollection,
                             let: { accountId: new ObjectId(accountId) },
                             pipeline: [
                                 {
@@ -166,7 +162,7 @@ export async function getPostsByHashtags(
                     },
                     {
                         $lookup: {
-                            from: mutedAccountsCollection,
+                            from: accountMuteCollection,
                             let: { accountId: new ObjectId(accountId) },
                             pipeline: [
                                 {
@@ -196,6 +192,13 @@ export async function getPostsByHashtags(
                         $unset: ["muted"],
                     },
                     {
+                        $match: {
+                            $expr: {
+                                isMuted: false,
+                            },
+                        },
+                    },
+                    {
                         $lookup: {
                             from: memoryCollection,
                             let: { currentDate: new Date() },
@@ -211,7 +214,7 @@ export async function getPostsByHashtags(
                                 },
                                 {
                                     $lookup: {
-                                        from: memoryViewsCollection,
+                                        from: memoryViewCollection,
                                         let: {
                                             memoryId: "$_id",
                                             accountId: new ObjectId(accountId),
@@ -261,7 +264,15 @@ export async function getPostsByHashtags(
                             hasUnseenMemory: {
                                 $cond: {
                                     if: {
-                                        memory: { $size: 0 },
+                                        $or: [
+                                            { memory: { $size: 0 } },
+                                            {
+                                                $and: [
+                                                    { isPrivate: true },
+                                                    { isFollowing: false },
+                                                ],
+                                            },
+                                        ],
                                     },
                                     then: false,
                                     else: true,
@@ -271,13 +282,15 @@ export async function getPostsByHashtags(
                         $unset: ["memory"],
                     },
                     {
-                        $unset: [
-                            "createdFrom",
-                            "createdAt",
-                            "broadcastTopic",
-                            "lastDeactivatedAt",
-                            "_id",
-                        ],
+                        $project: {
+                            _id: 1,
+                            username: 1,
+                            fullname: 1,
+                            profilePictureUrl: 1,
+                            hasUnseenMemory: 1,
+                            isFollowing: 1,
+                            isPrivate: 1,
+                        },
                     },
                 ],
                 as: "author",
@@ -285,7 +298,7 @@ export async function getPostsByHashtags(
         },
         {
             $set: {
-                author: {
+                createdBy: {
                     $arrayElemAt: ["$author", 0],
                 },
             },
@@ -293,15 +306,218 @@ export async function getPostsByHashtags(
         },
         {
             $lookup: {
-                from: postLikesCollection,
+                from: accountsCollection,
+                let: { tagAccountId: "$taggedAccounts.accountId" },
+                pipeline: [
+                    {
+                        $match: {
+                            _id: "$$taggedAccountId",
+                            deletedAt: { $exists: false },
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: accountFollowersCollection,
+                            let: { accountId: new ObjectId(accountId) },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $and: [
+                                                {
+                                                    accountId:
+                                                        "$$taggedAccountId",
+                                                },
+                                                { followedBy: "$$accountId" },
+                                            ],
+                                        },
+                                    },
+                                },
+                            ],
+                            as: "following",
+                        },
+                    },
+                    {
+                        $set: {
+                            isFollowing: {
+                                $cond: {
+                                    if: {
+                                        following: { $size: 0 },
+                                    },
+                                    then: false,
+                                    else: true,
+                                },
+                            },
+                        },
+                        $unset: ["following"],
+                    },
+                    {
+                        $lookup: {
+                            from: accountFavouriteCollection,
+                            let: { accountId: new ObjectId(accountId) },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $and: [
+                                                {
+                                                    accountId:
+                                                        "$$taggedAccountId",
+                                                },
+                                                { addedBy: "$$accountId" },
+                                            ],
+                                        },
+                                    },
+                                },
+                            ],
+                            as: "favourites",
+                        },
+                    },
+                    {
+                        $set: {
+                            isFavourite: {
+                                $cond: {
+                                    if: {
+                                        favourites: { $size: 0 },
+                                    },
+                                    then: false,
+                                    else: true,
+                                },
+                            },
+                        },
+                        $unset: ["favourites"],
+                    },
+                    {
+                        $lookup: {
+                            from: accountFollowRequestCollection,
+                            let: { accountId: new ObjectId(accountId) },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $and: [
+                                                {
+                                                    accountId:
+                                                        "$$taggedAccountId",
+                                                },
+                                                { requestedBy: "$$accountId" },
+                                            ],
+                                        },
+                                    },
+                                },
+                            ],
+                            as: "followRequests",
+                        },
+                    },
+                    {
+                        $set: {
+                            isRequested: {
+                                $cond: {
+                                    if: {
+                                        followRequests: { $size: 0 },
+                                    },
+                                    then: false,
+                                    else: true,
+                                },
+                            },
+                        },
+                        $unset: ["followRequests"],
+                    },
+                    {
+                        $lookup: {
+                            from: memoryCollection,
+                            let: { currentDate: new Date() },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            createdBy: "$$taggedAccountId",
+                                            expiredAt: { $gt: "$$currentDate" },
+                                            deletedAt: { $exists: false },
+                                        },
+                                    },
+                                },
+                                {
+                                    $lookup: {
+                                        from: memoryViewCollection,
+                                        let: {
+                                            memoryId: "$_id",
+                                            accountId: new ObjectId(accountId),
+                                        },
+                                        pipeline: [
+                                            {
+                                                $match: {
+                                                    $expr: {
+                                                        memoryId: "$$memoryId",
+                                                        viewedBy: "$$accountId",
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                        as: "seenMemory",
+                                    },
+                                },
+                                {
+                                    $set: {
+                                        isViewed: {
+                                            $cond: {
+                                                if: {
+                                                    seenMemory: {
+                                                        $size: 0,
+                                                    },
+                                                },
+                                                then: false,
+                                                else: true,
+                                            },
+                                        },
+                                    },
+                                    $unset: ["seenMemory"],
+                                },
+                                {
+                                    $match: {
+                                        $expr: {
+                                            isViewed: false,
+                                        },
+                                    },
+                                },
+                            ],
+                            as: "memory",
+                        },
+                    },
+                    {
+                        $set: {
+                            hasUnseenMemory: {
+                                $cond: {
+                                    if: {
+                                        $or: [
+                                            { memory: { $size: 0 } },
+                                            {
+                                                $and: [
+                                                    { isPrivate: true },
+                                                    { isFollowing: false },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                    then: false,
+                                    else: true,
+                                },
+                            },
+                        },
+                    },
+                ],
+                as: "taggedAccounts",
+            },
+        },
+        {
+            $lookup: {
+                from: postLikeCollection,
                 let: { accountId: new ObjectId(accountId), postId: "$_id" },
                 pipeline: [
                     {
                         $match: {
-                            $expr: {
-                                postId: "$$postId",
-                                likedBy: "$$accountId",
-                            },
+                            postId: "$$postId",
+                            likedBy: "$$accountId",
                         },
                     },
                 ],
@@ -324,15 +540,13 @@ export async function getPostsByHashtags(
         },
         {
             $lookup: {
-                from: postViewsCollection,
+                from: postViewCollection,
                 let: { accountId: new ObjectId(accountId), postId: "$_id" },
                 pipeline: [
                     {
                         $match: {
-                            $expr: {
-                                postId: "$$postId",
-                                viewedBy: "$$accountId",
-                            },
+                            postId: "$$postId",
+                            viewedBy: "$$accountId",
                         },
                     },
                 ],
@@ -355,15 +569,13 @@ export async function getPostsByHashtags(
         },
         {
             $lookup: {
-                from: postSavesCollection,
+                from: postSaveCollection,
                 let: { accountId: new ObjectId(accountId), postId: "$_id" },
                 pipeline: [
                     {
                         $match: {
-                            $expr: {
-                                postId: "$$postId",
-                                savedBy: "$$accountId",
-                            },
+                            postId: "$$postId",
+                            savedBy: "$$accountId",
                         },
                     },
                 ],
@@ -395,6 +607,8 @@ export async function getPostsByHashtags(
         },
     ];
 
-    let posts = await postCollection.aggregate(pipeline).toArray();
+    let posts = await postCollection
+        .aggregate<PostResponse>(pipeline)
+        .toArray();
     return posts;
 }

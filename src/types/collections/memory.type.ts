@@ -62,6 +62,7 @@ export interface Memory {
   createdAt: Date;
   deletedAt?: Date;
   createdBy: ObjectId;
+  expiredAt: Date;
   content: Content;
   usedAfterEffect?: ObjectId;
   usedAudio?: ObjectId;
