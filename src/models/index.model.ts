@@ -1,108 +1,191 @@
-import { readFileSync } from "fs";
-import { MongoClient, MongoClientOptions } from "mongodb";
-import path from "path";
-import { createSecureContext } from "tls";
+import { MongoClient } from "mongodb";
 import {
-    Comment,
-    CommentLike,
-    Post,
-    PostFolder,
-    PostLike,
-    PostSave,
-    PostView,
-} from "../types/post.type";
-import { Location, LocationVisit } from "../types/location.type";
-import { HashTag, HashTagVisit } from "../types/hashtag.type";
-import { Audio, AudioSave, AudioVisit } from "../types/audio.type";
+  Account,
+  AccountBlock,
+  AccountDetails,
+  AccountFavourite,
+  AccountFollower,
+  MemoryHiddenAccount,
+} from "../types/collections/account.type";
 import {
-    Account,
-    AccountActivity,
-    AccountDetails,
-    AccountBlock,
-    AccountFavourite,
-    AccountFollower,
-    AccountMute,
-    AccountFollowRequest,
-} from "../types/account.type";
-import { Memory, MemoryView } from "../types/memory.type";
+  CommentLike,
+  Post,
+  PostLike,
+  PostSave,
+  PostView,
+} from "../types/collections/post.type";
+import { LocationVisit } from "../types/collections/location.type";
+import { HashTag, HashTagVisit } from "../types/collections/hashtag.type";
+import { Audio, AudioSave, AudioVisit } from "../types/collections/audio.type";
+import {
+  Memory,
+  MemoryLike,
+  MemoryReply,
+  MemoryStickerResponse,
+  MemoryView,
+} from "../types/collections/memory.type";
 
-const url =
-    "mongodb+srv://cluster0.ssap4qe.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority";
+const database_username = "";
 
-const secureContext = createSecureContext({
-    cert: readFileSync(
-        path.join(__dirname, "./X509_cert_3289345913187973920.pem")
-    ),
-    key: readFileSync(
-        path.join(__dirname, "./X509_cert_3289345913187973920.pem")
-    ),
-});
+const database_password = "";
 
-const options = {
-    tls: true,
-    secureContext: secureContext,
-} as MongoClientOptions;
+const connection_string = `mongodb+srv://${database_username}:${database_password}@test-cluster-1.g7jcj9i.mongodb.net/appdatabase-dev`;
 
-const client = new MongoClient(url, options);
+export const databaseClient = new MongoClient(connection_string);
 
-export const db = client.db("myDB");
+export function initDatabaseClient() {
+  databaseClient.addListener("close", () => {
+    console.log("database connection closed");
+  });
 
-export const postCollection = db.collection<Post>("Posts");
+  databaseClient.addListener("commandFailed", () => {
+    console.log("database command failed\n");
+  });
 
-export const postLikesCollection = db.collection<PostLike>("PostLikes");
+  databaseClient.addListener("commandStarted", () => {
+    console.log("database command started\n");
+  });
 
-export const postViewsCollection = db.collection<PostView>("PostViews");
+  databaseClient.addListener("commandSucceeded", () => {
+    console.log("database command succeeded\n");
+  });
 
-export const postSavesCollection = db.collection<PostSave>("PostSaves");
+  databaseClient.addListener("connectionCheckOutFailed", () => {
+    console.log("database connection checkout failed\n");
+  });
 
-export const postFoldersCollection = db.collection<PostFolder>("PostFolders");
+  databaseClient.addListener("connectionCheckOutStarted", () => {
+    console.log("database connection closed\n");
+  });
 
-export const commentsCollection = db.collection<Comment>("Comments");
+  databaseClient.addListener("connectionCheckedIn", () => {
+    console.log("database connection checkedin\n");
+  });
 
-export const commentLikesCollection =
-    db.collection<CommentLike>("CommentLikes");
+  databaseClient.addListener("connectionCheckedOut", () => {
+    console.log("database connection checked out\n");
+  });
 
-export const locationCollection = db.collection<Location>("Location");
+  databaseClient.addListener("connectionClosed", () => {
+    console.log("database connection closed\n");
+  });
 
-export const locationVisitsCollection =
-    db.collection<LocationVisit>("LocationVisit");
+  databaseClient.addListener("connectionCreated", () => {
+    console.log("database connection created\n");
+  });
 
-export const hashtagCollection = db.collection<HashTag>("HashTag");
+  databaseClient.addListener("connectionPoolCleared", () => {
+    console.log("database connection pool cleared\n");
+  });
 
-export const hashtagVisitsCollection =
-    db.collection<HashTagVisit>("HashTagVisits");
+  databaseClient.addListener("connectionPoolReady", () => {
+    console.log("database connection pool ready\n");
+  });
 
-export const audioCollection = db.collection<Audio>("Audio");
+  databaseClient.addListener("connectionReady", () => {
+    console.log("database connection ready\n");
+  });
 
-export const audioSavesCollection = db.collection<AudioSave>("AudioSaves");
+  databaseClient.addListener("connectionPoolClosed", () => {
+    console.log("database connection pool closed\n");
+  });
 
-export const audioVisitsCollection = db.collection<AudioVisit>("AudioVisits");
+  databaseClient.addListener("connectionPoolCreated", () => {
+    console.log("database connection created\n");
+  });
 
-export const accountCollection = db.collection<Account>("Accounts");
+  databaseClient.addListener("error", () => {
+    console.log("database error\n");
+  });
+
+  databaseClient.addListener("open", () => {
+    console.log("database open\n");
+  });
+
+  databaseClient.addListener("serverClosed", () => {
+    console.log("database server closed\n");
+  });
+
+  databaseClient.addListener("serverOpening", () => {
+    console.log("database server opening\n");
+  });
+
+  databaseClient.addListener("timeout", () => {
+    console.log("database timed out");
+  });
+
+  databaseClient.addListener("serverHeartbeatFailed", () => {
+    console.log("database heartbeat failure\n");
+  });
+  databaseClient.addListener("serverHeartbeatStarted", () => {
+    console.log("database heartbeat started\n");
+  });
+
+  databaseClient.addListener("serverHeartbeatSucceeded", () => {
+    console.log("database heartbeat successed\n");
+  });
+}
+
+export const appDatabase = databaseClient.db("appdatabase-dev");
+
+export const accountsCollection = appDatabase.collection<Account>("accounts");
+
+export const accountFollowersCollection =
+  appDatabase.collection<AccountFollower>("account-followers");
+
+export const accountBlocksCollection =
+  appDatabase.collection<AccountBlock>("account-blocks");
 
 export const accountDetailsCollection =
-    db.collection<AccountDetails>("AccountDetails");
+  appDatabase.collection<AccountDetails>("account-details");
 
-export const accountActivityCollection =
-    db.collection<AccountActivity>("AccountActivity");
+export const accountFavouriteCollection =
+  appDatabase.collection<AccountFavourite>("account-favourite");
 
-export const followedAccountsCollection =
-    db.collection<AccountFollower>("Followedaccounts");
+export const memoryHiddenAccountCollection =
+  appDatabase.collection<MemoryHiddenAccount>("memory-hidden-account");
 
-export const blockedAccountsCollection =
-    db.collection<AccountBlock>("BlockedAccounts");
+export const postCollection = appDatabase.collection<Post>("post");
 
-export const requestedAccountsCollection =
-    db.collection<AccountFollowRequest>("RequestedAccounts");
+export const postLikeCollection = appDatabase.collection<PostLike>("post-like");
 
-export const favouriteAccountsCollection =
-    db.collection<AccountFavourite>("FavouriteAccounts");
+export const postSaveCollection = appDatabase.collection<PostSave>("post-save");
 
-export const mutedAccountsCollection =
-    db.collection<AccountMute>("MutedAccounts");
+export const postViewCollection = appDatabase.collection<PostView>("post-view");
 
-export const memoryCollection = db.collection<Memory>("Momories")
+export const commentCollection = appDatabase.collection<Comment>("comment");
 
-export const memoryViewsCollection = db.collection<MemoryView>("MemoryViews")
+export const commentLikeCollection =
+  appDatabase.collection<CommentLike>("comment-like");
 
-export default client;
+export const locationCollection = appDatabase.collection<Location>("location");
+
+export const locationVisitCollection =
+  appDatabase.collection<LocationVisit>("location-visit");
+
+export const hashtagCollection = appDatabase.collection<HashTag>("hashtag");
+
+export const hashtagVisitCollection =
+  appDatabase.collection<HashTagVisit>("hashtag-visit");
+
+export const audioCollection = appDatabase.collection<Audio>("audio");
+
+export const audioVisitCollection =
+  appDatabase.collection<AudioVisit>("audio-visit");
+
+export const audioSaveCollection =
+  appDatabase.collection<AudioSave>("audio-save");
+
+export const memoryCollection = appDatabase.collection<Memory>("memory");
+
+export const memoryViewCollection =
+  appDatabase.collection<MemoryView>("memory-view");
+
+export const memoryLikeCollection =
+  appDatabase.collection<MemoryLike>("memory-like");
+
+export const memoryReplyCollection =
+  appDatabase.collection<MemoryReply>("memory-reply");
+
+export const memoryStickerResponseCollection =
+  appDatabase.collection<MemoryStickerResponse>("memory-sticker-response");

@@ -1,7 +1,7 @@
 require("dotenv").config();
 import express from "express";
 import config from "config";
-import log from "./util/logger";
+import log from "./utils/logger";
 import { indexRouter } from "./routes";
 import errorHandler from "./middleware/errorHandler";
 import { closeConnection, demoDB } from "./models/post.model";
